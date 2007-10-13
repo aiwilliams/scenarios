@@ -13,7 +13,7 @@ end
 namespace :spec do
   desc "Prepare workspace for running our specs"
   task :environment do
-    require File.dirname(__FILE__) + "/support/environment"
+    require File.dirname(__FILE__) + "/spec/environment"
     if File.directory?(RSPEC_ROOT)
       puts "Support libraries are in place. Skipping checkout."
     else

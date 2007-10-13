@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/../support/environment"
+require File.dirname(__FILE__) + "/../spec/environment"
 
 $: << "#{PLUGIN_ROOT}/lib"
 $: << "#{RSPEC_ROOT}/lib"
