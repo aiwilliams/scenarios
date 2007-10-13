@@ -3,7 +3,8 @@ gem 'rake'
 require 'rake'
 
 desc "Run all specs in spec directory"
-task :spec => "spec:environment" do
+task :spec => "spec:libs:checkout" do
+  require "#{RSPEC_ROOT}/lib/spec/rake/spectask"
   Spec::Rake::SpecTask.new do |t|
     t.spec_opts = ['--options', "\"#{PLUGIN_ROOT}/spec/spec.opts\""]
     t.spec_files = FileList["#{PLUGIN_ROOT}/spec/**/*_spec.rb"]
@@ -11,18 +12,34 @@ task :spec => "spec:environment" do
 end
 
 namespace :spec do
-  desc "Prepare workspace for running our specs"
+  desc "Load environment into rake file"
   task :environment do
     require File.dirname(__FILE__) + "/spec/environment"
-    if File.directory?(RSPEC_ROOT)
-      puts "Support libraries are in place. Skipping checkout."
-    else
-      system "svn export http://rspec.rubyforge.org/svn/trunk/rspec #{RSPEC_ROOT}"
-      system "svn export http://rspec.rubyforge.org/svn/trunk/rspec_on_rails #{RSPEC_ON_RAILS_ROOT}"
-      system "svn export http://svn.rubyonrails.org/rails/trunk/activerecord/ #{ACTIVERECORD_ROOT}"
-      system "svn export http://svn.rubyonrails.org/rails/trunk/activesupport/ #{ACTIVESUPPORT_ROOT}"
+  end
+  
+  namespace :libs do
+    desc "Prepare workspace for running our specs"
+    task :checkout => :environment do
+      libs = {
+        RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec",
+        RSPEC_ON_RAILS_ROOT => "http://rspec.rubyforge.org/svn/trunk/rspec_on_rails",
+        ACTIVERECORD_ROOT   => "http://svn.rubyonrails.org/rails/trunk/activerecord/",
+        ACTIVESUPPORT_ROOT  => "http://svn.rubyonrails.org/rails/trunk/activesupport/"
+      }
+      needed = libs.keys.select { |dir| not File.directory?(dir) }
+      if needed.empty?
+        puts "Support libraries are in place. Skipping checkout."
+      else
+        needed.each { |root| system "svn export #{libs[root]} #{root}" }
+      end
     end
-    require "#{RSPEC_ROOT}/lib/spec/rake/spectask"
+    
+    desc "Remove libs from tmp directory"
+    task :clean do
+      require 'fileutils'
+      FileUtils.rm_rf( + '/tmp/lib')
+      puts "cleaned tmp/libs"
+    end
   end
 end
   

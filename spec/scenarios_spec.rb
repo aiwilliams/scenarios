@@ -6,6 +6,7 @@ describe "Scenario database", :shared => true do
     @connection = ActiveRecord::Base.connection
     @connection.create_table :things, :force => true do |t|
       t.string :name
+      t.string :description
     end
     
     class ::Thing < ActiveRecord::Base; end unless defined?(Thing)
@@ -16,14 +17,15 @@ describe "Scenario database", :shared => true do
   end
   
   it "should be able to create a record" do
-    create_record :thing, :name => "bobby"
+    create_record :thing, :name => "bobby", :description => "a little boy"
+    Thing.find_by_name("bobby").description.should == "a little boy"
   end
 end
 
 describe "Scenarios on MySQL" do
   before(:all) do
-    system "mysqladmin -uroot drop #{ActiveRecord::Base.configurations['mysql'][:database]} --force"
-    system "mysqladmin -uroot create #{ActiveRecord::Base.configurations['mysql'][:database]}"
+    `mysqladmin -uroot drop #{ActiveRecord::Base.configurations['mysql'][:database]} --force`
+    `mysqladmin -uroot create #{ActiveRecord::Base.configurations['mysql'][:database]}`
     ActiveRecord::Base.establish_connection 'mysql'
   end
   it_should_behave_like "Scenario database"
