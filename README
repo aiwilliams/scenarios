@@ -8,7 +8,7 @@ Scenarios should be placed in the spec/scenarios directory of your Rails project
 
 A simple scenario looks like this
 
-  class PersonScenario < Scenarios::Base
+  class PersonScenario < Scenario::Base
   
     def load
       create_record(
@@ -21,14 +21,18 @@ A simple scenario looks like this
   
   end
 
-To use this scenario in a Test you would do:
+The simplest scenario only needs to implement one method: the <tt>load</tt> method. Inside the load method you can insert records using the Scenario::Base#create_record instance method. The first parameter is the name of the table to insert the record into and the second parameter is for attributes.
 
-describe Person do
-  scenario :person
+To use this scenario in a spec you would do:
+
+  describe Person do
+    scenario :person
   
-  ... additional examples here ...
+    ... examples here ...
   
-end
+  end
+
+
 
 -----
 

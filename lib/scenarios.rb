@@ -91,12 +91,12 @@ module Scenario
       scenario_classes.each do |scenario_class|
         scenario = scenario_class.new(table_config)
         if previous_scenario
-          scenario_class.test_helpers.extend previous_scenario.class.test_helpers
-          scenario_class.send :include, previous_scenario.class.test_helpers
+          scenario_class.helpers.extend previous_scenario.class.helpers
+          scenario_class.send :include, previous_scenario.class.helpers
           scenario.table_readers.extend previous_scenario.table_readers
         end
         scenario.load
-        self.class.send :include, scenario_class.test_helpers
+        self.class.send :include, scenario_class.helpers
         self.class.send :include, scenario.table_readers
         previous_scenario = scenario
         @loaded_scenarios << scenario
@@ -121,7 +121,7 @@ module Scenario
       end
   
       def test_helpers
-        const_get(:TestHelpers) rescue const_set(:TestHelpers, Module.new)
+        const_get(:Helpers) rescue const_set(:Helpers, Module.new)
       end
   
       def to_scenario
@@ -135,7 +135,7 @@ module Scenario
     def initialize(config = Config.new)
       self.table_config = config
       self.extend table_config.table_readers
-      self.extend self.class.test_helpers
+      self.extend self.class.helpers
     end
 
     def load
