@@ -1,4 +1,36 @@
-Scenarios are a replacement for Rails' YAML fixtures.
+== Scenarios
+
+In a nutshell, scenarios are a drop in replacement for YAML fixtures. Instead of encouraging you to create a mindless amount raw data in the form of YAML, scenarios encourage you to create code that populates your tables with the appropriate data.
+
+=== Usage
+
+Scenarios should be placed in the spec/scenarios directory of your Rails project. Scenario file names should always end in "_scenario.rb" and classes should always end in "Scenario".
+
+A simple scenario looks like this
+
+  class PersonScenario < Scenarios::Base
+  
+    def load
+      create_record(
+        :person,
+        :name => 'Long John',
+        :username => 'longjohn',
+        :password => 'password'
+      )
+    end
+  
+  end
+
+To use this scenario in a Test you would do:
+
+describe Person do
+  scenario :person
+  
+  ... additional examples here ...
+  
+end
+
+-----
 
 There are a number of choices when looking to replace YAML fixtures. Why
 should you consider this one? That can be answered indirectly by considering
