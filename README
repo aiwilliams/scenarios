@@ -49,3 +49,8 @@ database fixture framework?
 USAGE
 ------------------------------------------------------
 Where your scenarios should be placed - <root>/spec/scenarios
+
+
+RUNNING TESTS
+------------------------------------------------------
+You will need to create a mysql database named 'scenarios_spec'.

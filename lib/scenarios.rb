@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/scenarios/extensions'
 require 'set'
 require 'active_record/fixtures'
 
-module Scenarios
+module Scenario
   class InvalidScenario < StandardError; end
   
   def self.load(scenario_name)
@@ -158,3 +158,5 @@ module Scenarios
   end
   
 end
+
+Scenarios = Scenario

@@ -10,3 +10,21 @@ require 'spec'
 require 'activesupport'
 require 'activerecord'
 require 'scenarios'
+
+require 'logger'
+RAILS_DEFAULT_LOGGER = Logger.new("#{SUPPORT_TEMP}/spec.log")
+RAILS_DEFAULT_LOGGER.level = Logger::DEBUG
+ActiveRecord::Base.logger = RAILS_DEFAULT_LOGGER
+
+ActiveRecord::Base.configurations = {
+  'mysql' => {
+    :adapter  => 'mysql',
+    :username => 'root',
+    :database => 'scenarios_spec',
+  },
+  'sqlite3' => {
+    :adapter => 'sqlite3',
+    :database => "#{SUPPORT_TEMP}/sqlite3.db",
+    :timeout => 5000
+  }
+}
