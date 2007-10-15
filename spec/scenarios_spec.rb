@@ -44,7 +44,7 @@ describe "Scenarios on Sqlite3" do
   it_should_behave_like "Scenario database"
 end
 
-describe "Scenario loading" do
+describe Scenario do
   it_should_behave_like "Sqlite3 database"
 
   before :all do
@@ -53,5 +53,19 @@ describe "Scenario loading" do
   
   it "should load from configured directories" do
     Scenario.load(:simplest)
+  end
+  
+  it "should allow us to add helper methods through the helpers class method" do
+    klass = scenario_class(:simplest)
+    klass.helpers do
+      def hello
+        "Hello World"
+      end
+    end
+    klass.helpers.methods.should include('hello')
+  end
+  
+  def scenario_class(name)
+    name.to_scenario
   end
 end

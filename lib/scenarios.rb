@@ -125,8 +125,10 @@ module Scenario
         used_scenarios.concat(names)
       end
   
-      def helpers
-        const_get(:Helpers) rescue const_set(:Helpers, Module.new)
+      def helpers(&block)
+        mod = (const_get(:Helpers) rescue const_set(:Helpers, Module.new))
+        mod.extend Module.new(&block) if block_given?
+        mod
       end
   
       def to_scenario
@@ -140,7 +142,7 @@ module Scenario
     def initialize(config = Config.new)
       self.table_config = config
       self.extend table_config.table_readers
-      self.extend self.class.helpers
+      # self.extend self.class.helpers
     end
 
     def load
