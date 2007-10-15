@@ -127,7 +127,7 @@ module Scenario
   
       def helpers(&block)
         mod = (const_get(:Helpers) rescue const_set(:Helpers, Module.new))
-        mod.extend Module.new(&block) if block_given?
+        mod.instance_eval(&block) if block_given?
         mod
       end
   
