@@ -1,15 +1,39 @@
 require File.dirname(__FILE__) + "/spec_helper"
 
-describe "Scenario database", :shared => true do
-  before :all do
-    @table_config = Scenarios::Config.new
-    @connection = ActiveRecord::Base.connection
-    @connection.create_table :things, :force => true do |t|
+module SchemaDefinition
+  def load_schema
+    connection = ActiveRecord::Base.connection
+    connection.create_table :things, :force => true do |t|
       t.string :name
       t.string :description
     end
-    
-    class ::Thing < ActiveRecord::Base; end unless defined?(Thing)
+    eval %{class ::Thing < ActiveRecord::Base; end} unless defined?(Thing)
+  end
+end
+
+describe "MySQL database", :shared => true do
+  include SchemaDefinition
+  before(:all) do
+    `mysqladmin -uroot drop #{ActiveRecord::Base.configurations['mysql'][:database]} --force`
+    `mysqladmin -uroot create #{ActiveRecord::Base.configurations['mysql'][:database]}`
+    ActiveRecord::Base.establish_connection 'mysql'
+    load_schema
+  end
+end
+
+describe "Sqlite3 database", :shared => true do
+  include SchemaDefinition
+  before(:all) do
+    database = ActiveRecord::Base.configurations['sqlite3'][:database]
+    File.delete(database) if File.exists?(database)
+    ActiveRecord::Base.establish_connection 'sqlite3'
+    load_schema
+  end
+end
+
+describe "Scenario database", :shared => true do
+  before :all do
+    @table_config = Scenarios::Config.new
   end
   
   before :each do
@@ -22,34 +46,18 @@ describe "Scenario database", :shared => true do
   end
 end
 
-describe "Scenarios on MySQL" do
-  before(:all) do
-    `mysqladmin -uroot drop #{ActiveRecord::Base.configurations['mysql'][:database]} --force`
-    `mysqladmin -uroot create #{ActiveRecord::Base.configurations['mysql'][:database]}`
-    ActiveRecord::Base.establish_connection 'mysql'
-  end
-  it_should_behave_like "Scenario database"
-end
-
-describe "Sqlite3 database", :shared => true do
-  before(:all) do
-    database = ActiveRecord::Base.configurations['sqlite3'][:database]
-    File.delete(database) if File.exists?(database)
-    ActiveRecord::Base.establish_connection 'sqlite3'
-  end
-end
-
 describe "Scenarios on Sqlite3" do
   it_should_behave_like "Sqlite3 database"
   it_should_behave_like "Scenario database"
 end
 
+describe "Scenarios on MySQL" do
+  it_should_behave_like "MySQL database"
+  it_should_behave_like "Scenario database"
+end
+
 describe Scenario do
   it_should_behave_like "Sqlite3 database"
-
-  before :all do
-    Scenario.load_paths = ["#{PLUGIN_ROOT}/spec/fixtures/scenarios/independant"]
-  end
   
   it "should load from configured directories" do
     Scenario.load(:simplest)
@@ -68,4 +76,22 @@ describe Scenario do
   def scenario_class(name)
     name.to_scenario
   end
+end
+
+describe "Rspec description scenario class method" do
+  it_should_behave_like "Sqlite3 database"
+  scenario :thing
+
+  it "should allow us to use record creation methods from with an example" do
+    lambda do
+      create_record(:thing, :name => "The Thing")
+    end.should_not raise_error
+  end
+
+  xit "should allow us to use helper methods from with an example" do
+    lambda do
+      create_thing(:name => "The Thing")
+    end.should_not raise_error
+  end
+  
 end

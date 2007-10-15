@@ -10,6 +10,7 @@ require 'spec'
 require 'activesupport'
 require 'activerecord'
 require 'scenarios'
+require 'scenarios/dsl/extensions'
 
 require 'logger'
 RAILS_DEFAULT_LOGGER = Logger.new("#{SUPPORT_TEMP}/spec.log")

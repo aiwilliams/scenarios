@@ -38,5 +38,3 @@ module Scenarios
     
   end
 end
-
-Test::Unit::TestCase.extend Scenarios::DSL::ClassMethods
