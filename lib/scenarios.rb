@@ -142,7 +142,7 @@ module Scenario
     def initialize(config = Config.new)
       self.table_config = config
       self.extend table_config.table_readers
-      # self.extend self.class.helpers
+      self.extend self.class.helpers
     end
 
     def load
