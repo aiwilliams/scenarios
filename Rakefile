@@ -20,6 +20,7 @@ namespace :spec do
   namespace :libs do
     desc "Prepare workspace for running our specs"
     task :checkout => :environment do
+      mkdir_p SUPPORT_LIB
       libs = {
         RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec",
         RSPEC_ON_RAILS_ROOT => "http://rspec.rubyforge.org/svn/trunk/rspec_on_rails",
@@ -35,10 +36,9 @@ namespace :spec do
     end
     
     desc "Remove libs from tmp directory"
-    task :clean do
-      require 'fileutils'
-      FileUtils.rm_rf( + '/tmp/lib')
-      puts "cleaned tmp/libs"
+    task :clean => :environment do
+      rm_rf SUPPORT_LIB
+      puts "cleaned #{SUPPORT_LIB}"
     end
   end
 end

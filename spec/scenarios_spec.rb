@@ -31,10 +31,27 @@ describe "Scenarios on MySQL" do
   it_should_behave_like "Scenario database"
 end
 
-describe "Scenarios on Sqlite3" do
+describe "Sqlite3 database", :shared => true do
   before(:all) do
-    File.delete(ActiveRecord::Base.configurations['sqlite3'][:database])
+    database = ActiveRecord::Base.configurations['sqlite3'][:database]
+    File.delete(database) if File.exists?(database)
     ActiveRecord::Base.establish_connection 'sqlite3'
   end
+end
+
+describe "Scenarios on Sqlite3" do
+  it_should_behave_like "Sqlite3 database"
   it_should_behave_like "Scenario database"
+end
+
+describe "Scenario loading" do
+  it_should_behave_like "Sqlite3 database"
+
+  before :all do
+    Scenario.load_paths = ["#{PLUGIN_ROOT}/spec/fixtures/scenarios/independant"]
+  end
+  
+  it "should load from configured directories" do
+    Scenario.load(:simplest)
+  end
 end

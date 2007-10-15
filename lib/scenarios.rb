@@ -6,12 +6,17 @@ require 'active_record/fixtures'
 module Scenario
   class InvalidScenario < StandardError; end
   
-  def self.load(scenario_name)
-    klass = scenario_name.to_scenario
-    klass.load
-    klass
-  rescue NameError
-    raise InvalidScenario
+  class << self
+    mattr_accessor :load_paths
+    self.load_paths = ["#{RAILS_ROOT}/spec/scenarios", "#{RAILS_ROOT}/test/scenarios"]
+    
+    def load(scenario_name)
+      klass = scenario_name.to_scenario
+      klass.load
+      klass
+    rescue NameError => e
+      raise InvalidScenario, e.message
+    end
   end
 
   module TableMethods
@@ -120,7 +125,7 @@ module Scenario
         used_scenarios.concat(names)
       end
   
-      def test_helpers
+      def helpers
         const_get(:Helpers) rescue const_set(:Helpers, Module.new)
       end
   

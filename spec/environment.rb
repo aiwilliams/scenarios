@@ -1,6 +1,10 @@
-PLUGIN_ROOT         = File.expand_path(File.dirname(__FILE__) + "/..") unless defined?(PLUGIN_ROOT)
-SUPPORT_TEMP        = "#{PLUGIN_ROOT}/tmp" unless defined?(SUPPORT_TEMP)
-ACTIVESUPPORT_ROOT  = "#{PLUGIN_ROOT}/tmp/lib/activesupport" unless defined?(ACTIVESUPPORT_ROOT)
-ACTIVERECORD_ROOT   = "#{PLUGIN_ROOT}/tmp/lib/activerecord" unless defined?(ACTIVERECORD_ROOT)
-RSPEC_ROOT          = "#{PLUGIN_ROOT}/tmp/lib/rspec" unless defined?(RSPEC_ROOT)
-RSPEC_ON_RAILS_ROOT = "#{PLUGIN_ROOT}/tmp/lib/rspec_on_rails" unless defined?(RSPEC_ON_RAILS_ROOT)
+unless defined?(PLUGIN_ROOT)
+  PLUGIN_ROOT         = File.expand_path(File.dirname(__FILE__) + "/..")
+  RAILS_ROOT          = PLUGIN_ROOT
+  SUPPORT_TEMP        = "#{PLUGIN_ROOT}/tmp"
+  SUPPORT_LIB         = "#{SUPPORT_TEMP}/lib"
+  ACTIVESUPPORT_ROOT  = "#{SUPPORT_LIB}/activesupport"
+  ACTIVERECORD_ROOT   = "#{SUPPORT_LIB}/activerecord"
+  RSPEC_ROOT          = "#{SUPPORT_LIB}/rspec"
+  RSPEC_ON_RAILS_ROOT = "#{SUPPORT_LIB}/rspec_on_rails"
+end
