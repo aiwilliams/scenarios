@@ -18,7 +18,7 @@ describe Scenario do
   end
   
   it "should allow us to add helper methods through the helpers class method" do
-    klass = scenario_class(:simplest)
+    klass = :simplest.to_scenario
     klass.helpers do
       def hello
         "Hello World"
@@ -26,13 +26,9 @@ describe Scenario do
     end
     klass.new.methods.should include('hello')
   end
-  
-  def scenario_class(name)
-    name.to_scenario
-  end
 end
 
-describe "Single Scenario" do
+describe "Rspec description" do
   scenario :thing
   
   it "should allow us access to records through record_name helper method" do
@@ -46,9 +42,11 @@ describe "Single Scenario" do
   end
   
   it "should allow us to use helper methods from inside an example" do
-    create_thing(:name => "The Thing")
+    create_thing("The Thing")
     things(:the_thing).name.should == "The Thing"
   end
+  
+  it "should have a different name for the load_all method"
 end
 
 describe "Composite Scenario" do

@@ -3,6 +3,7 @@ module Scenarios
     
     module ExampleExtensions
       include ::Scenarios::TableMethods
+      include ::Scenarios::Loaders
     end
     
   end
