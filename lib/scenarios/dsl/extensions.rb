@@ -20,5 +20,6 @@ end
 
 # While others work under here
 Test::Unit::TestCase.module_eval do
+  extend Scenarios::DSL::ClassMethods
   include Scenarios::DSL::ExampleExtensions
 end

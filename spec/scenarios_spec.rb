@@ -32,7 +32,7 @@ describe "Rspec description" do
   scenario :thing
   
   it "should allow us access to records through record_name helper method" do
-    things(:one).should be_kind_of Thing
+    things(:one).should be_kind_of(Thing)
     things(:two).name.should == "two"
   end
   
