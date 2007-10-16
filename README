@@ -32,29 +32,8 @@ To use this scenario in a spec you would do:
   
   end
 
+You can find additional examples in spec/scenarios_spec.rb.
 
+== License
 
------
-
-There are a number of choices when looking to replace YAML fixtures. Why
-should you consider this one? That can be answered indirectly by considering
-the philosophy behind the decisions we make during the construction of this
-tool.
-
-But first, what is the purpose of any database fixture framework?
-
-Second, what are the goals or values that a database fixture framework should
-have?
-
-Finally, what is the driving philosophy behind this implementation of a
-database fixture framework?
-
-
-USAGE
-------------------------------------------------------
-Where your scenarios should be placed - <root>/spec/scenarios
-
-
-RUNNING TESTS
-------------------------------------------------------
-You will need to create a mysql database named 'scenarios_spec'.
+The Scenarios plugin is released under the MIT-License and is Copyright (c) 2007, Adam Williams and John W. Long.
