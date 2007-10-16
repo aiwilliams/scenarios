@@ -32,21 +32,28 @@ describe Scenario do
   end
 end
 
-describe "Rspec description" do
+describe "Single Scenario" do
   scenario :thing
   
-  xit "should allow us access to records through record_name helper method" do
-    thing(:one).should === Thing
-    thing(:two).name.should == "two"
+  it "should allow us access to records through record_name helper method" do
+    things(:one).should be_kind_of Thing
+    things(:two).name.should == "two"
   end
   
-  xit "should allow us to use record creation methods from with an example" do
-    create_record(:thing, :name => "One")
+  it "should allow us to use record creation methods from with an example" do
+    create_record(:thing, :three, :name => "Three")
+    things(:three).name.should == "Three"
   end
   
-  xit "should allow us to use helper methods from inside an example" do
+  it "should allow us to use helper methods from inside an example" do
     create_thing(:name => "The Thing")
+    things(:the_thing).name.should == "The Thing"
   end
+end
+
+describe "Composite Scenario" do
+  #scenario :composite
   
-  it "should have a different name for the load_all method"
+  it "should test composite"
+  
 end
