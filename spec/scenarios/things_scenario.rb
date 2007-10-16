@@ -1,4 +1,4 @@
-class ThingScenario < Scenario::Base
+class ThingsScenario < Scenario::Base
 
   def load
     create_thing "one"

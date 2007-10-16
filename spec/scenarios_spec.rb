@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + "/spec_helper"
 
-class ::Thing < ActiveRecord::Base; end
-
 describe "Scenario database", :shared => true do
   it "should be able to create a record" do
     @table_config = Scenarios::Config.new
@@ -26,12 +24,14 @@ describe Scenario do
     end
     klass.new.methods.should include('hello')
   end
+  
+  it "should have a different name for the load_all method"
 end
 
 describe "Rspec description" do
-  scenario :thing
+  scenario :things
   
-  it "should allow us access to records through record_name helper method" do
+  it "should allow us access to records through reader helper methods" do
     things(:one).should be_kind_of(Thing)
     things(:two).name.should == "two"
   end
@@ -45,13 +45,18 @@ describe "Rspec description" do
     create_thing("The Thing")
     things(:the_thing).name.should == "The Thing"
   end
-  
-  it "should have a different name for the load_all method"
 end
 
 describe "Composite Scenario" do
-  #scenario :composite
+  scenario :composite
   
-  it "should test composite"
+  it "should have reader helper methods for each used scenario" do
+    should respond_to(:things)
+    should respond_to(:people)
+  end
   
+  it "should allow us to use helper methods from each scenario inside an example" do
+    should respond_to(:create_thing)
+    should respond_to(:create_person)
+  end
 end
