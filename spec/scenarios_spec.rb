@@ -24,7 +24,7 @@ describe Scenario do
         "Hello World"
       end
     end
-    klass.helpers.methods.should include('hello')
+    klass.new.methods.should include('hello')
   end
   
   def scenario_class(name)
@@ -40,11 +40,13 @@ describe "Rspec description" do
     thing(:two).name.should == "two"
   end
   
-  it "should allow us to use record creation methods from with an example" do
+  xit "should allow us to use record creation methods from with an example" do
     create_record(:thing, :name => "One")
   end
   
   xit "should allow us to use helper methods from inside an example" do
     create_thing(:name => "The Thing")
   end
+  
+  it "should have a different name for the load_all method"
 end

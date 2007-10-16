@@ -1,18 +1,17 @@
 class ThingScenario < Scenario::Base
 
   def load
-    # Why doesn't this work?
-    # create_thing "one"
-    # create_thing "two"
+    create_thing "one"
+    create_thing "two"
   end
-  
+
   helpers do
     def create_thing(attributes = {})
       attributes = { :name => attributes } if attributes.kind_of?(String)
       attributes = thing_params(attributes)
       create_record(:thing, attributes[:name].strip.gsub(' ', '_').underscore.to_sym, attributes)
     end
-    
+
     def thing_params(attributes = {})
       attributes = {
         :name        => "Unnamed Thing",
@@ -20,5 +19,4 @@ class ThingScenario < Scenario::Base
       }.update(attributes)
     end
   end
-  
 end

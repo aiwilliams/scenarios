@@ -32,7 +32,7 @@ databases.each do |db|
       when "mysql"
         system "mysqladmin -uroot drop #{name} --force"
         system "mysqladmin -uroot create #{name}"
-      when "sqlite"
+      when "sqlite3"
         rm_rf name
         touch name
       end
