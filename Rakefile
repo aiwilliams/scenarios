@@ -1,25 +1,56 @@
 require 'rubygems'
 gem 'rake'
 require 'rake'
+require 'yaml'
 
-desc "Run all specs in spec directory"
-task :spec => "spec:libs:checkout" do
-  require "#{RSPEC_ROOT}/lib/spec/rake/spectask"
-  Spec::Rake::SpecTask.new do |t|
-    t.spec_opts = ['--options', "\"#{PLUGIN_ROOT}/spec/spec.opts\""]
-    t.spec_files = FileList["#{PLUGIN_ROOT}/spec/**/*_spec.rb"]
+require "#{File.dirname(__FILE__)}/spec/environment"
+
+config = YAML.load(IO.read(DB_CONFIG_FILE))
+databases = config.keys
+
+desc "Run all specs using all databases"
+task :spec => databases.map { |db| "spec:#{db}" }
+
+databases.each do |db|
+  desc "Run all specs using #{db}"
+  task "spec:#{db}" => ["spec:libs:checkout", "db:#{db}:prepare"] do
+    ENV['DB'] = db
+    require "#{RSPEC_ROOT}/lib/spec/rake/spectask"
+    puts "Running tests with #{db}..."
+    Spec::Rake::SpecTask.new "spec:#{db}" do |t|
+      t.spec_opts = ['--options', "\"#{SPEC_ROOT}/spec.opts\""]
+      puts "#{SPEC_ROOT}/**/*_spec.rb"
+      t.spec_files = FileList["#{SPEC_ROOT}/**/*_spec.rb"]
+    end
+  end
+  
+  desc "Prepare the #{db} test database"
+  task "db:#{db}:prepare" do
+    cd PLUGIN_ROOT do
+      name = config[db][:database]
+      case db
+      when "mysql"
+        system "mysqladmin -uroot drop #{name} --force"
+        system "mysqladmin -uroot create #{name}"
+      when "sqlite"
+        rm_rf name
+        touch name
+      end
+      require "#{ACTIVERECORD_ROOT}/lib/activerecord"
+      ActiveRecord::Base.silence do
+        ActiveRecord::Base.configurations = config
+        ActiveRecord::Base.establish_connection db
+        load DB_SCHEMA_FILE
+      end
+    end
   end
 end
 
 namespace :spec do
-  desc "Load environment into rake file"
-  task :environment do
-    require File.dirname(__FILE__) + "/spec/environment"
-  end
   
   namespace :libs do
     desc "Prepare workspace for running our specs"
-    task :checkout => :environment do
+    task :checkout do
       mkdir_p SUPPORT_LIB
       libs = {
         RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec",
@@ -36,7 +67,7 @@ namespace :spec do
     end
     
     desc "Remove libs from tmp directory"
-    task :clean => :environment do
+    task :clean do
       rm_rf SUPPORT_LIB
       puts "cleaned #{SUPPORT_LIB}"
     end
