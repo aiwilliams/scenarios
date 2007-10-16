@@ -1,15 +1,6 @@
 require File.dirname(__FILE__) + "/spec_helper"
 
-describe "Scenario database", :shared => true do
-  it "should be able to create a record" do
-    @table_config = Scenarios::Config.new
-    self.extend Scenarios::TableMethods
-    create_record :thing, :name => "bobby", :description => "a little boy"
-    Thing.find_by_name("bobby").description.should == "a little boy"
-  end
-end
-
-describe Scenario do
+describe "Scenario loading" do
   it "should load from configured directories" do
     Scenario.load(:simplest)
     SimplestScenario
@@ -24,32 +15,28 @@ describe Scenario do
     end
     klass.new.methods.should include('hello')
   end
-  
-  it "should have a different name for the load_all method"
 end
 
-describe "Rspec description" do
+describe "Scenario example helper methods" do
   scenario :things
   
-  it "should allow us access to records through reader helper methods" do
+  it "should include pluralized record name readers" do
     things(:one).should be_kind_of(Thing)
     things(:two).name.should == "two"
   end
   
-  it "should allow us to use record creation methods from with an example" do
+  it "should include record creation methods" do
     create_record(:thing, :three, :name => "Three")
     things(:three).name.should == "Three"
   end
   
-  it "should allow us to use helper methods from inside an example" do
+  it "should include other example helper methods" do
     create_thing("The Thing")
     things(:the_thing).name.should == "The Thing"
   end
 end
 
-describe "Composite Scenario" do
-  scenario :composite
-  
+describe "it uses people and things scenarios", :shared => true do
   it "should have reader helper methods for each used scenario" do
     should respond_to(:things)
     should respond_to(:people)
@@ -58,5 +45,44 @@ describe "Composite Scenario" do
   it "should allow us to use helper methods from each scenario inside an example" do
     should respond_to(:create_thing)
     should respond_to(:create_person)
+  end
+end
+
+describe "A composite scenario" do
+  scenario :composite
+  
+  it_should_behave_like "it uses people and things scenarios"
+  
+  it "should allow us to use helper methods scenario" do
+    should respond_to(:method_from_composite_scenario)
+  end
+end
+
+describe "Multiple scenarios" do
+  scenario :things, :people
+  
+  it_should_behave_like "it uses people and things scenarios"
+end
+
+describe "A complex composite scenario" do
+  scenario :complex_composite
+  
+  it_should_behave_like "it uses people and things scenarios"
+  
+  it "should have correct reader helper methods" do
+    should respond_to(:places)
+  end
+  
+  it "should allow us to use correct helper methods" do
+    should respond_to(:create_place)
+  end
+  
+end
+
+describe "Overlapping scenarios" do
+  scenario :composite, :things, :people
+  
+  it "should cause scenarios to be loaded twice" do
+    Person.find_all_by_first_name("John").size.should == 1
   end
 end

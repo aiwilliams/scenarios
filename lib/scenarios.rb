@@ -89,7 +89,7 @@ module Scenario
   end
 
   module Loaders
-    def load_all(scenario_classes)
+    def load_scenarios(scenario_classes)
       self.table_config = Config.new
       @loaded_scenarios = []
       previous_scenario = nil
@@ -112,7 +112,7 @@ module Scenario
   class Base
     class << self
       def load
-        new.load_all(used_scenarios + [self])
+        new.load_scenarios(used_scenarios + [self])
       end
   
       def used_scenarios

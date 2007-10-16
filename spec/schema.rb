@@ -4,6 +4,11 @@ ActiveRecord::Schema.define do
     t.column "last_name", :string
   end
   
+  create_table "places", :force => true do |t|
+    t.column "name", :string
+    t.column "location", :string 
+  end
+  
   create_table "things", :force => true do |t|
     t.column "name", :string
     t.column "description", :string

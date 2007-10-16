@@ -1,6 +1,5 @@
 module Scenarios
   module DSL
-
     module ClassMethods
       def scenario(*names)
         if @scenario_classes.nil?
@@ -8,7 +7,7 @@ module Scenarios
           all_scenario_classes = @scenario_classes
           
           before(:all) do
-            load_all(all_scenario_classes)
+            load_scenarios(all_scenario_classes)
           end
           
           before(:each) do
@@ -35,6 +34,5 @@ module Scenarios
         @scenario_classes.uniq!
       end
     end
-    
   end
 end
