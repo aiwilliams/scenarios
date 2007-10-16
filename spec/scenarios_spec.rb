@@ -82,7 +82,7 @@ end
 describe "Overlapping scenarios" do
   scenario :composite, :things, :people
   
-  it "should cause scenarios to be loaded twice" do
+  it "should not cause scenarios to be loaded twice" do
     Person.find_all_by_first_name("John").size.should == 1
   end
 end
