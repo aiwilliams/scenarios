@@ -90,15 +90,15 @@ examples:
 
   class UsersScenario < Scenario::Base
     def load
-      create_person :name => "John"
+      create_user :name => "John"
     end
 
     helpers do
-      def create_person(attributes={})
-        create_record :person, attributes[:name].downcase.intern, attributes
+      def create_user(attributes={})
+        create_record :user, attributes[:name].downcase.intern, attributes
       end
       def login_as(user)
-        # insert user into session
+        @request.session[:user_id] = user.id
       end
     end
   end
@@ -108,12 +108,19 @@ when it is instantiated and mixed into examples that declare that they are
 using the scenario.
 
   describe "Projects screen" do
-    scenario :people
+    scenario :users
     
     it "should show active projects" do
-      login_as(people(:john))
+      login_as(users(:john))
+      get :projects
+      @response.should have_tag('#active_projects')
     end
   end
+
+Notice that the in the RSpec example I have access to the login_as helper
+method declared inside the <tt>helpers</tt> block of the Users scenario.
+Scenario helpers are a great way to share helper methods between specs that
+use a specific scenario.
 
 == More Information
 
