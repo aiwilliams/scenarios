@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/scenarios/extensions'
 require 'active_record/fixtures'
 
-# :include:README
 module Scenario
   # Thrown by Scenario.load when it cannot find a specific senario.
   class ScenarioNameError < NameError; end

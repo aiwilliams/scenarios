@@ -151,8 +151,12 @@ of our other scenarios, thereby:
 
 === More Information
 
-For more information, I'd recommend that you study the source. The specs and
-example scenarios are probably good places to start:
+For more information, be sure to look through the documentation over at RubyForge:
+
+* http://faithfulcode.rubyforge.org/docs/scenarios
+
+You might also enjoy taking a look at the specs for the plugin and the example
+scenarios:
 
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios

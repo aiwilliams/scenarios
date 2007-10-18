@@ -74,12 +74,12 @@ namespace :spec do
   end
 end
 
-Rake::RDocTask.new(:docs) do |r|
+Rake::RDocTask.new(:doc) do |r|
   r.title = "Rails Scenarios Plugin"
-  r.main = "Scenario"
+  r.main = "README"
   r.options << "--line-numbers"
-  r.rdoc_files.include("LICENSE", "lib/**/*.rb")
-  r.rdoc_dir = "docs"
+  r.rdoc_files.include("README", "LICENSE", "lib/**/*.rb")
+  r.rdoc_dir = "doc"
 end
   
 task :default => :spec
