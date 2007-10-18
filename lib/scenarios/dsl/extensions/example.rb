@@ -1,7 +1,7 @@
 module Scenarios
-  module DSL
+  module DSL # :nodoc:
     
-    module ExampleExtensions
+    module ExampleExtensions # :nodoc:
       include ::Scenarios::TableMethods
       include ::Scenarios::Loaders
     end

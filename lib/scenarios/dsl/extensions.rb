@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + "/extensions/behaviour"
 require File.dirname(__FILE__) + "/extensions/example"
 
 Spec::DSL::Example.module_eval do
-  def self.inherited(klass)
+  def self.inherited(klass) # :nodoc:
     super
     klass.extend Scenarios::DSL::ClassMethods
   end

@@ -1,5 +1,14 @@
 class Symbol
+  
+  # Convert a symbol into the associated scenario class:
+  #
+  #   :basic.to_scenario #=> BasicScenario
+  #   :basic_scenario.to_scenario #=> BasicScenario
+  #
+  # Raises ScenarioNameError if the the scenario cannot be loacated in
+  # Scenario.load_paths.
   def to_scenario
     to_s.to_scenario
   end
+  
 end

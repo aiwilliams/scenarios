@@ -4,7 +4,7 @@ require 'active_record/fixtures'
 # :include:README
 module Scenario
   # Thrown by Scenario.load when it cannot find a specific senario.
-  class InvalidScenario < StandardError; end
+  class ScenarioNameError < NameError; end
   
   class << self
     mattr_accessor :load_paths
@@ -16,29 +16,34 @@ module Scenario
       klass = scenario_name.to_scenario
       klass.load
       klass
-    rescue NameError => e
-      raise InvalidScenario, e.message
     end
   end
   
+  # This helper module contains the #create_record method and is mixed into
+  # Scenario::Base and RSpec specs.
   module TableMethods
     attr_accessor :table_config
     delegate :table_readers, :blasted_tables, :modified_tables, :symbolic_names_to_id, :to => :table_config
     
-    # Inserts a record into the database. And adds the appropriate table
-    # reader helpers into the scenario and spec.
+    # Insert a record into the database, add the appropriate helper methods
+    # into the scenario and spec, and return the ID of the inserted record:
     #
-    #   create_record :event, :one, :name => "Showdown"
-    #   create_record :event, :name => "Showdown"
+    #   create_record :event, :name => "Ruby Hoedown"
+    #   create_record :event, :hoedown, :name => "Ruby Hoedown"
     #
-    # The first form will assign the returned record id to the provided
-    # _symbolic_name_, so that in your tests you may invoke something like
-    # this:
+    # The first form will create a new record in the given table (first
+    # parameter) with the appropriate attributes.
     #
-    #   events(:one)
+    # The second form is exactly like the first, except for the fact that it
+    # requires that you pass a symbolic name as the second parameter. The
+    # symbolic name will allow you access to the record through a couple of
+    # helper methods:
     #
-    # The second form will not remember the record id, so the events method
-    # will not be able to answer that record.
+    #   events(:hoedown)    # The hoedown event
+    #   event_id(:hoedown)  # The ID of the hoedown event
+    #
+    # These helper methods are only accessible for a particular table after
+    # you have inserted a record into that table using <tt>create_record</tt>.
     def create_record(class_name, *args)
       symbolic_name, attributes = extract_creation_arguments(args)
       table_name = class_name.to_s.pluralize
@@ -92,7 +97,7 @@ module Scenario
         (class << self; self; end)
       end
   end
-
+  
   module Loaders # :nodoc:
     def load_scenarios(scenario_classes)
       self.table_config = Config.new
@@ -166,12 +171,12 @@ module Scenario
     def load
     end
     
-    # Blasts all tables used by a scenario in its load method.
+    # Unload a scenario. Used internally by the Scenarios plugin.
     def unload
       modified_tables.each { |name| blast_table(name) }
     end
   end
-
+  
   class Config # :nodoc:
     attr_reader :blasted_tables, :modified_tables, :table_readers, :symbolic_names_to_id
     def initialize
@@ -184,4 +189,6 @@ module Scenario
   
 end
 
-Scenarios = Scenario
+# The scenarios namespace module.
+module Scenarios
+end
