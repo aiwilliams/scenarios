@@ -48,7 +48,6 @@ databases.each do |db|
 end
 
 namespace :spec do
-  
   namespace :libs do
     desc "Prepare workspace for running our specs"
     task :checkout do
@@ -77,9 +76,9 @@ end
 
 Rake::RDocTask.new(:docs) do |r|
   r.title = "Rails Scenarios Plugin"
-  r.main = "README"
+  r.main = "Scenario"
   r.options << "--line-numbers"
-  r.rdoc_files.include("README", "LICENSE", "lib/**/*.rb")
+  r.rdoc_files.include("LICENSE", "lib/**/*.rb")
   r.rdoc_dir = "docs"
 end
   
