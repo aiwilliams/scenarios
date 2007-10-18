@@ -1,6 +1,7 @@
 require 'rubygems'
 gem 'rake'
 require 'rake'
+require 'rake/rdoctask'
 require 'yaml'
 
 require "#{File.dirname(__FILE__)}/spec/environment"
@@ -72,6 +73,14 @@ namespace :spec do
       puts "cleaned #{SUPPORT_LIB}"
     end
   end
+end
+
+Rake::RDocTask.new(:docs) do |r|
+  r.title = "Rails Scenarios Plugin"
+  r.main = "README"
+  r.options << "--line-numbers"
+  r.rdoc_files.include("README", "LICENSE", "lib/**/*.rb")
+  r.rdoc_dir = "docs"
 end
   
 task :default => :spec

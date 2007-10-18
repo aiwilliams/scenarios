@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>create_record (Scenario::TableMethods)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>    <span class="ruby-comment cmt"># File lib/scenarios.rb, line 47</span>
+47:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">create_record</span>(<span class="ruby-identifier">class_name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+48:       <span class="ruby-identifier">symbolic_name</span>, <span class="ruby-identifier">attributes</span> = <span class="ruby-identifier">extract_creation_arguments</span>(<span class="ruby-identifier">args</span>)
+49:       <span class="ruby-identifier">table_name</span> = <span class="ruby-identifier">class_name</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">pluralize</span>
+50: 
+51:       <span class="ruby-identifier">record_id</span> = <span class="ruby-keyword kw">nil</span>
+52:       <span class="ruby-identifier">fixture</span> = <span class="ruby-constant">Fixture</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">attributes</span>, <span class="ruby-identifier">class_name</span>)
+53:       <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>.<span class="ruby-identifier">silence</span> <span class="ruby-keyword kw">do</span>
+54:         <span class="ruby-identifier">blast_table</span>(<span class="ruby-identifier">table_name</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">blasted_tables</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">table_name</span>)
+55:         <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>.<span class="ruby-identifier">connection</span>.<span class="ruby-identifier">insert_fixture</span>(<span class="ruby-identifier">fixture</span>, <span class="ruby-identifier">table_name</span>)
+56:         <span class="ruby-identifier">record_id</span> = <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>.<span class="ruby-identifier">connection</span>.<span class="ruby-identifier">select_value</span>(<span class="ruby-node">&quot;SELECT id FROM #{table_name} order by id desc limit 1&quot;</span>).<span class="ruby-identifier">to_i</span>
+57:         <span class="ruby-identifier">symbolic_names_to_id</span>[<span class="ruby-identifier">table_name</span>][<span class="ruby-identifier">symbolic_name</span>] = <span class="ruby-identifier">record_id</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">symbolic_name</span>
+58:         <span class="ruby-identifier">update_table_readers</span>(<span class="ruby-identifier">symbolic_names_to_id</span>, <span class="ruby-identifier">class_name</span>, <span class="ruby-identifier">table_name</span>)
+59:         <span class="ruby-identifier">modified_tables</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">table_name</span>
+60:       <span class="ruby-keyword kw">end</span>
+61:       <span class="ruby-identifier">record_id</span>
+62:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -30,18 +30,20 @@ module Scenario
       blasted_tables << name
     end
 
-    # Inserts a record into the database.
+    # Inserts a record into the database. And adds the appropriate table
+    # reader helpers into the scenario and spec.
     #
     #   create_record :event, :one, :name => "Showdown"
     #   create_record :event, :name => "Showdown"
     #
-    # The first form will assign the returned record id to the provided _symbolic_name_,
-    # so that in your tests you may invoke something like this:
+    # The first form will assign the returned record id to the provided
+    # _symbolic_name_, so that in your tests you may invoke something like
+    # this:
     #
     #   events(:one)
     #
-    # The second form will not remember the record id, so the events method will not
-    # be able to answer that record.
+    # The second form will not remember the record id, so the events method
+    # will not be able to answer that record.
     def create_record(class_name, *args)
       symbolic_name, attributes = extract_creation_arguments(args)
       table_name = class_name.to_s.pluralize

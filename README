@@ -127,8 +127,8 @@ use a specific scenario.
 For more information, I'd recommend that you study the source. The specs and
 example scenarios are probably good places to start:
 
-http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
-http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios/
+* http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
+* http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios
 
 == License
 

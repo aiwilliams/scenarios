@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>update_table_readers (Scenario::TableMethods)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>    <span class="ruby-comment cmt"># File lib/scenarios.rb, line 74</span>
+74:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">update_table_readers</span>(<span class="ruby-identifier">ids</span>, <span class="ruby-identifier">class_name</span>, <span class="ruby-identifier">table_name</span>)
+75:       <span class="ruby-identifier">record_type</span> = <span class="ruby-identifier">class_name</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">classify</span>.<span class="ruby-identifier">constantize</span>
+76:       <span class="ruby-identifier">record_id_method</span> = <span class="ruby-node">&quot;#{class_name.to_s.underscore}_id&quot;</span>.<span class="ruby-identifier">to_sym</span>
+77:       <span class="ruby-identifier">table_readers</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">:define_method</span>, <span class="ruby-identifier">record_id_method</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">symbolic_name</span><span class="ruby-operator">|</span>
+78:         <span class="ruby-identifier">record_id</span> = <span class="ruby-identifier">ids</span>[<span class="ruby-identifier">table_name</span>][<span class="ruby-identifier">symbolic_name</span>]
+79:         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">RecordNotFound</span>, <span class="ruby-node">&quot;No object is associated with #{table_name}(:#{symbolic_name})&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">record_id</span>
+80:         <span class="ruby-identifier">record_id</span>
+81:       <span class="ruby-keyword kw">end</span>
+82:       <span class="ruby-identifier">table_readers</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">:define_method</span>, <span class="ruby-identifier">table_name</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">symbolic_name</span><span class="ruby-operator">|</span>
+83:         <span class="ruby-identifier">record_type</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">send</span>(<span class="ruby-identifier">record_id_method</span>, <span class="ruby-identifier">symbolic_name</span>))
+84:       <span class="ruby-keyword kw">end</span>
+85:       <span class="ruby-identifier">metaclass</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">:include</span>, <span class="ruby-identifier">table_readers</span>
+86:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

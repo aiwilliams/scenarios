@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: README</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>README</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>README
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Thu Oct 18 09:34:58 -0400 2007</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2><a href="../classes/Scenarios.html">Scenarios</a></h2>
+<p>
+In a nutshell, scenarios are a drop in replacement for YAML fixtures.
+Instead of encouraging you to create a mindless amount raw data in the form
+of YAML, scenarios encourage you to create code that populates your tables
+with the appropriate records.
+</p>
+<h3>Quick Start</h3>
+<p>
+<a href="../classes/Scenarios.html">Scenarios</a> should be placed in the
+spec/scenarios directory of your Rails project. <a
+href="../classes/Scenario.html">Scenario</a> file names always end in
+&quot;_scenario.rb&quot; and classes end in &quot;<a
+href="../classes/Scenario.html">Scenario</a>&quot;.
+</p>
+<p>
+A simple scenario looks like this:
+</p>
+<pre>
+  class UsersScenario &lt; Scenario::Base
+
+    def load
+      create_record :user, :john, :name =&gt; 'John', :password =&gt; 'randomness'
+      create_record :user, :cindy, :name =&gt; 'Cindy', :password =&gt; 'whoot!'
+    end
+
+  end
+</pre>
+<p>
+In the example above, I&#8216;m using the <tt>create_record</tt> instance
+method to create two users: John and Cindy. Notice the calls to
+<tt>create_record</tt>. There are three parameters. The first is the name
+of the table to insert the record into, the second is the symbolic name of
+the record (more on that latter), and the third is a hash of the attributes
+of the record.
+</p>
+<p>
+To use a this scenario inside of a description, you should declare it using
+the <tt>scenario</tt> instance method:
+</p>
+<pre>
+  describe User do
+    scenario :users
+
+    it &quot;should allow me to do something with John&quot; do
+      user = users(:john)
+      user.password.should == &quot;randomness&quot;
+    end
+
+  end
+</pre>
+<p>
+Notice that it is easy to create an instance of a model object by
+referencing its symbolic name with a reader method. In the example above I
+instantiated an instance of John with the reader method <tt>users</tt> and
+the symbolic name <tt>:john</tt>. (Remember that in the Users scenario I
+declared that John should be accessible through the symbolic name
+<tt>:john</tt>.)
+</p>
+<h3>Composition</h3>
+<p>
+In real life your scenarios will probably grow quite complicated. The
+scenarios plugin allows you to deal with this complexity through
+composition.
+</p>
+<p>
+Here&#8216;s a simple example:
+</p>
+<pre>
+  # in spec/scenarios/posts_scenario.rb
+  class PostsScenario &lt; Scenario::Base
+    def load
+      create_record :post, :first, :title =&gt; &quot;First Post&quot;
+      create_record :post, :second, :title =&gt; &quot;Second Post&quot;
+    end
+  end
+
+  # in spec/scnearios/comments_scenario.rb
+  class CommentsScenario &lt; Scenario::Base
+    uses :posts
+
+    def load
+      create_record :comment, :first, :body =&gt; &quot;Nice post!&quot;, :post_id =&gt; post_id(:first)
+      create_record :comment, :second, :body =&gt; &quot;I like it.&quot;, :post_id =&gt; post_id(:first)
+      create_record :comment, :third, :body =&gt; &quot;I thoroughly disagree.&quot;, :post_id =&gt; post_id(:second)
+    end
+  end
+</pre>
+<p>
+In the example above the Comments scenario declares that it depends on the
+Posts scenario with the <tt>uses</tt> class method. This means that if you
+load the Comments scenario, the Posts scenario will be loaded first and the
+Comments scenario will have access to all the data loaded by the Posts
+scenario in its own <tt>load</tt> method. Note that inside the load method
+I&#8216;m using an automatically generated record ID reader (in this case:
+<tt>post_id</tt>) to associate each of the comments to a post.
+</p>
+<h3>Helper Methods</h3>
+<p>
+Another way of simplifying your scenarios and specs is through helper
+methods. The <a href="../classes/Scenarios.html">Scenarios</a> plugin
+provides a handy way to declare helper methods that are accessible from
+inside the scenario and also from inside related RSpec examples:
+</p>
+<pre>
+  class UsersScenario &lt; Scenario::Base
+    def load
+      create_user :name =&gt; &quot;John&quot;
+    end
+
+    helpers do
+      def create_user(attributes={})
+        create_record :user, attributes[:name].downcase.intern, attributes
+      end
+      def login_as(user)
+        @request.session[:user_id] = user.id
+      end
+    end
+  end
+</pre>
+<p>
+Helper methods declared inside the helpers block are mixed into the
+scenario when it is instantiated and mixed into examples that declare that
+they are using the scenario.
+</p>
+<pre>
+  describe &quot;Projects screen&quot; do
+    scenario :users
+
+    it &quot;should show active projects&quot; do
+      login_as(users(:john))
+      get :projects
+      @response.should have_tag('#active_projects')
+    end
+  end
+</pre>
+<p>
+Notice that the in the RSpec example I have access to the login_as helper
+method declared inside the <tt>helpers</tt> block of the Users scenario. <a
+href="../classes/Scenario.html">Scenario</a> helpers are a great way to
+share helper methods between specs that use a specific scenario.
+</p>
+<h2>More Information</h2>
+<p>
+For more information, I&#8216;d recommend that you study the source. The
+specs and example scenarios are probably good places to start:
+</p>
+<ul>
+<li><a
+href="http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb">faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb</a>
+
+</li>
+<li><a
+href="http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios">faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios</a>
+
+</li>
+</ul>
+<h2>License</h2>
+<p>
+The <a href="../classes/Scenarios.html">Scenarios</a> plugin is released
+under the MIT-License and is Copyright (c) 2007, Adam Williams and John W.
+Long. Special thanks to Chris Redinger for his part in helping us get this
+plugin ready for the public.
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
