@@ -1,39 +1,130 @@
 == Scenarios
 
-In a nutshell, scenarios are a drop in replacement for YAML fixtures. Instead of encouraging you to create a mindless amount raw data in the form of YAML, scenarios encourage you to create code that populates your tables with the appropriate data.
+In a nutshell, scenarios are a drop in replacement for YAML fixtures. Instead
+of encouraging you to create a mindless amount raw data in the form of YAML,
+scenarios encourage you to create code that populates your tables with the
+appropriate records.
 
-=== Usage
+=== Quick Start
 
-Scenarios should be placed in the spec/scenarios directory of your Rails project. Scenario file names should always end in "_scenario.rb" and classes should always end in "Scenario".
+Scenarios should be placed in the spec/scenarios directory of your Rails
+project. Scenario file names always end in "_scenario.rb" and classes end in
+"Scenario".
 
-A simple scenario looks like this
+A simple scenario looks like this:
 
-  class PersonScenario < Scenario::Base
+  class UsersScenario < Scenario::Base
   
     def load
-      create_record(
-        :person,
-        :name => 'Long John',
-        :username => 'longjohn',
-        :password => 'password'
-      )
+      create_record :user, :john, :name => 'John', :password => 'randomness'
+      create_record :user, :cindy, :name => 'Cindy', :password => 'whoot!'
     end
   
   end
 
-The simplest scenario only needs to implement one method: the <tt>load</tt> method. Inside the load method you can insert records using the Scenario::Base#create_record instance method. The first parameter is the name of the table to insert the record into and the second parameter is for attributes.
+In the example above, I'm using the <tt>create_record</tt> instance method to
+create two users: John and Cindy. Notice the calls to <tt>create_record</tt>.
+There are three parameters. The first is the name of the table to insert the
+record into, the second is the symbolic name of the record (more on that
+latter), and the third is a hash of the attributes of the record.
 
-To use this scenario in a spec you would do:
+To use a this scenario inside of a description, you should declare it using
+the <tt>scenario</tt> instance method:
 
-  describe Person do
-    scenario :person
-  
-    ... examples here ...
-  
+  describe User do
+    scenario :users
+    
+    it "should allow me to do something with John" do
+      user = users(:john)
+      user.password.should == "randomness"
+    end
+    
   end
 
-You can find additional examples in spec/scenarios_spec.rb.
+Notice that it is easy to create an instance of a model object by referencing
+its symbolic name with a reader method. In the example above I instantiated an
+instance of John with the reader method <tt>users</tt> and the symbolic name
+<tt>:john</tt>. (Remember that in the Users scenario I declared that John
+should be accessible through the symbolic name <tt>:john</tt>.)
+
+=== Composition
+
+In real life your scenarios will probably grow quite complicated. The
+scenarios plugin allows you to deal with this complexity through composition.
+
+Here's a simple example:
+
+  # in spec/scenarios/posts_scenario.rb
+  class PostsScenario < Scenario::Base
+    def load
+      create_record :post, :first, :title => "First Post"
+      create_record :post, :second, :title => "Second Post"
+    end
+  end
+  
+  # in spec/scnearios/comments_scenario.rb
+  class CommentsScenario < Scenario::Base
+    uses :posts
+    
+    def load
+      create_record :comment, :first, :body => "Nice post!", :post_id => post_id(:first)
+      create_record :comment, :second, :body => "I like it.", :post_id => post_id(:first)
+      create_record :comment, :third, :body => "I thoroughly disagree.", :post_id => post_id(:second)
+    end
+  end
+
+In the example above the Comments scenario declares that it depends on the
+Posts scenario with the <tt>uses</tt> class method. This means that if you
+load the Comments scenario, the Posts scenario will be loaded first and the
+Comments scenario will have access to all the data loaded by the Posts
+scenario in its own <tt>load</tt> method. Note that inside the load method I'm
+using an automatically generated record ID reader (in this case:
+<tt>post_id</tt>) to associate each of the comments to a post.
+
+=== Helper Methods
+
+Another way of simplifying your scenarios and specs is through helper methods.
+The Scenarios plugin provides a handy way to declare helper methods that are
+accessible from inside the scenario and also from inside related RSpec
+examples:
+
+  class UsersScenario < Scenario::Base
+    def load
+      create_person :name => "John"
+    end
+
+    helpers do
+      def create_person(attributes={})
+        create_record :person, attributes[:name].downcase.intern, attributes
+      end
+      def login_as(user)
+        # insert user into session
+      end
+    end
+  end
+
+Helper methods declared inside the helpers block are mixed into the scenario
+when it is instantiated and mixed into examples that declare that they are
+using the scenario.
+
+  describe "Projects screen" do
+    scenario :people
+    
+    it "should show active projects" do
+      login_as(people(:john))
+    end
+  end
+
+== More Information
+
+For more information, I'd recommend that you study the source. The specs and
+example scenarios are probably good places to start:
+
+http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
+http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios/
 
 == License
 
-The Scenarios plugin is released under the MIT-License and is Copyright (c) 2007, Adam Williams and John W. Long.
+The Scenarios plugin is released under the MIT-License and is Copyright (c)
+2007, Adam Williams and John W. Long. Special thanks to Chris Redinger for his
+part in helping us get this plugin ready for the public.
