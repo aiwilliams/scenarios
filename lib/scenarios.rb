@@ -189,5 +189,4 @@ module Scenario
 end
 
 # The scenarios namespace module.
-module Scenarios
-end
+Scenarios = Scenario
