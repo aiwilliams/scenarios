@@ -8,10 +8,10 @@ Spec::DSL::Example.module_eval do
   end
 end
 
-# Some may may include this
-Spec::DSL::ExampleModule.module_eval do
-  include Scenarios::DSL::ExampleExtensions
-end
+# # Some may may include this
+# Spec::DSL::ExampleModule.module_eval do
+#   include Scenarios::DSL::ExampleExtensions
+# end
 
 # And some may extend this
 Spec::DSL::Example.module_eval do
