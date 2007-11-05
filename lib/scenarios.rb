@@ -22,7 +22,7 @@ module Scenario
   # Scenario::Base and RSpec specs.
   module TableMethods
     attr_accessor :table_config
-    delegate :table_readers, :blasted_tables, :modified_tables, :symbolic_names_to_id, :to => :table_config
+    delegate :table_readers, :blasted_tables, :record_metas, :symbolic_names_to_id, :to => :table_config
     
     # Insert a record into the database, add the appropriate helper methods
     # into the scenario and spec, and return the ID of the inserted record:
@@ -43,20 +43,17 @@ module Scenario
     #
     # These helper methods are only accessible for a particular table after
     # you have inserted a record into that table using <tt>create_record</tt>.
-    def create_record(class_name, *args)
+    def create_record(class_identifier, *args)
       symbolic_name, attributes = extract_creation_arguments(args)
-      table_name = class_name.to_s.pluralize
-      record_id = nil
-      fixture = Fixture.new(attributes, class_name)
+      record_meta = (record_metas[class_identifier] ||= RecordMeta.new(class_identifier))
+      record      = ScenarioRecord.new(record_meta, attributes, symbolic_name)
       ActiveRecord::Base.silence do
-        blast_table(table_name) unless blasted_tables.include?(table_name)
-        ActiveRecord::Base.connection.insert_fixture(fixture, table_name)
-        record_id = ActiveRecord::Base.connection.select_value("SELECT id FROM #{table_name} order by id desc limit 1").to_i
-        symbolic_names_to_id[table_name][symbolic_name] = record_id if symbolic_name
-        update_table_readers(symbolic_names_to_id, class_name, table_name)
-        modified_tables << table_name
+        blast_table(record_meta.table_name) unless blasted_tables.include?(record_meta.table_name)
+        ActiveRecord::Base.connection.insert_fixture(record.to_fixture, record_meta.table_name)
+        symbolic_names_to_id[record_meta.table_name][record.symbolic_name] = record.id
+        update_table_readers(symbolic_names_to_id, record_meta.record_class, record_meta.table_name)
       end
-      record_id
+      record.id
     end
     
     def blast_table(name) # :nodoc:
@@ -78,9 +75,8 @@ module Scenario
         end
       end
       
-      def update_table_readers(ids, class_name, table_name)
-        record_type = class_name.to_s.classify.constantize
-        record_id_method = "#{class_name.to_s.underscore}_id".to_sym
+      def update_table_readers(ids, record_type, table_name)
+        record_id_method = "#{table_name}_id".to_sym
         table_readers.send :define_method, record_id_method do |symbolic_name|
           record_id = ids[table_name][symbolic_name]
           raise ActiveRecord::RecordNotFound, "No object is associated with #{table_name}(:#{symbolic_name})" unless record_id
@@ -94,6 +90,85 @@ module Scenario
       
       def metaclass
         (class << self; self; end)
+      end
+      
+      class RecordMeta
+        attr_reader :class_name, :record_class, :table_name
+        
+        def initialize(class_identifier)
+          @class_identifier = class_identifier
+          @class_name       = resolve_class_name(class_identifier)
+          @record_class     = class_name.constantize
+          @table_name       = record_class.table_name
+        end
+        
+        def timestamp_columns
+          @timestamp_columns ||= begin
+            timestamps = %w(created_at created_on updated_at updated_on)
+            columns.select do |column|
+              timestamps.include?(column.name)
+            end
+          end
+        end
+
+        def columns
+          @columns ||= connection.columns(table_name)
+        end
+        
+        def connection
+          record_class.connection
+        end
+        
+        def resolve_class_name(class_identifier)
+          case class_identifier
+          when Symbol
+            class_identifier.to_s.singularize.camelize
+          when Class
+            class_identifier.name
+          when String
+            class_identifier
+          end
+        end
+      end
+      
+      class ScenarioRecord
+        attr_reader :record_meta, :symbolic_name
+        
+        def initialize(record_meta, attributes, symbolic_name = nil)
+          @record_meta   = record_meta
+          @attributes    = attributes.stringify_keys
+          @symbolic_name = symbolic_name || object_id
+          
+          install_default_attributes!
+        end
+        
+        def id
+          @attributes['id']
+        end
+        
+        def to_hash
+          @attributes
+        end
+        
+        def to_fixture
+          Fixture.new(to_hash, record_meta.class_name)
+        end
+        
+        def install_default_attributes!
+          @attributes['id'] ||= Fixtures.identify(symbolic_name)
+          install_timestamps!
+        end
+        
+        def install_timestamps!
+          record_meta.timestamp_columns.each do |column|
+            @attributes[column.name] = now(column) unless @attributes.key?(column.name)
+          end
+        end
+        
+        def now(column)
+          now = ActiveRecord::Base.default_timezone == :utc ? column.klass.now.utc : column.klass.now
+          now.to_s(:db)
+        end
       end
   end
   
@@ -172,15 +247,15 @@ module Scenario
     
     # Unload a scenario. Used internally by the Scenarios plugin.
     def unload
-      modified_tables.each { |name| blast_table(name) }
+      record_metas.each_value { |meta| blast_table(meta.table_name) }
     end
   end
   
   class Config # :nodoc:
-    attr_reader :blasted_tables, :modified_tables, :table_readers, :symbolic_names_to_id
+    attr_reader :blasted_tables, :record_metas, :table_readers, :symbolic_names_to_id
     def initialize
       @blasted_tables       = Set.new,
-      @modified_tables      = Set.new,
+      @record_metas         = Hash.new,
       @table_readers        = Module.new,
       @symbolic_names_to_id = Hash.new {|h,k| h[k] = Hash.new}
     end

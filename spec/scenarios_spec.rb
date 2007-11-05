@@ -20,6 +20,11 @@ end
 describe "Scenario example helper methods" do
   scenario :things
   
+  it "should understand namespaced models" do
+    create_record "ModelModule::Model", :raking, :name => "Raking", :description => "Moving leaves around"
+    models(:raking).should_not be_nil
+  end
+  
   it "should include pluralized record name readers" do
     things(:one).should be_kind_of(Thing)
     things(:two).name.should == "two"
@@ -89,9 +94,9 @@ end
 describe "create_record class method" do
   scenario :empty
   
-  it "should automatically set timestamps" # do
-  #     create_record :note, :first, :content => "first note"
-  #     note = notes(:first)
-  #     note.created_at.should be_instance_of(DateTime)
-  #   end
+  it "should automatically set timestamps" do
+    create_record :note, :first, :content => "first note"
+    note = notes(:first)
+    note.created_at.should be_instance_of(Time)
+  end
 end
