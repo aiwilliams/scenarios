@@ -155,7 +155,7 @@ module Scenario
         end
         
         def install_default_attributes!
-          @attributes['id'] ||= Fixtures.identify(symbolic_name)
+          @attributes['id'] ||= symbolic_name.to_s.hash.abs
           install_timestamps!
         end
         
