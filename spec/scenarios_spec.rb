@@ -6,6 +6,10 @@ describe "Scenario loading" do
     EmptyScenario
   end
   
+  it "should raise Scenario::NameError when the scenario does not exist" do
+    lambda { Scenario.load(:whatcha_talkin_bout) }.should raise_error(Scenario::NameError)
+  end
+  
   it "should allow us to add helper methods through the helpers class method" do
     klass = :empty.to_scenario
     klass.helpers do

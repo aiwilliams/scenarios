@@ -3,7 +3,7 @@ require 'active_record/fixtures'
 
 module Scenario
   # Thrown by Scenario.load when it cannot find a specific senario.
-  class ScenarioNameError < NameError; end
+  class NameError < ::NameError; end
   
   class << self
     mattr_accessor :load_paths

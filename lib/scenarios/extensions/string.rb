@@ -5,7 +5,7 @@ class String
   #   "basic".to_scenario #=> BasicScenario
   #   "basic_scenario".to_scenario #=> BasicScenario
   #
-  # Raises ScenarioNameError if the the scenario cannot be loacated in
+  # Raises Scenario::NameError if the the scenario cannot be loacated in
   # Scenario.load_paths.
   def to_scenario
     class_name = "#{self.strip.camelize.sub(/Scenario$/, '')}Scenario"
@@ -16,7 +16,7 @@ class String
         break
       end
     end
-    class_name.constantize rescue raise ScenarioNameError, "Expected to find #{class_name} in #{Scenario.load_paths.inspect}"
+    class_name.constantize rescue raise Scenario::NameError, "Expected to find #{class_name} in #{Scenario.load_paths.inspect}"
   end
   
 end
