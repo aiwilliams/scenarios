@@ -51,7 +51,7 @@ module Scenario
         blast_table(record_meta.table_name) unless blasted_tables.include?(record_meta.table_name)
         ActiveRecord::Base.connection.insert_fixture(record.to_fixture, record_meta.table_name)
         symbolic_names_to_id[record_meta.table_name][record.symbolic_name] = record.id
-        update_table_readers(symbolic_names_to_id, record_meta.record_class, record_meta.table_name)
+        update_table_readers(symbolic_names_to_id, record_meta)
       end
       record.id
     end
@@ -75,15 +75,14 @@ module Scenario
         end
       end
       
-      def update_table_readers(ids, record_type, table_name)
-        record_id_method = "#{table_name}_id".to_sym
-        table_readers.send :define_method, record_id_method do |symbolic_name|
-          record_id = ids[table_name][symbolic_name]
-          raise ActiveRecord::RecordNotFound, "No object is associated with #{table_name}(:#{symbolic_name})" unless record_id
+      def update_table_readers(ids, record_meta)
+        table_readers.send :define_method, record_meta.id_reader do |symbolic_name|
+          record_id = ids[record_meta.table_name][symbolic_name]
+          raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
           record_id
         end
-        table_readers.send :define_method, table_name do |symbolic_name|
-          record_type.find(send(record_id_method, symbolic_name))
+        table_readers.send :define_method, record_meta.record_reader do |symbolic_name|
+          record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
         end
         metaclass.send :include, table_readers
       end
@@ -92,7 +91,7 @@ module Scenario
         (class << self; self; end)
       end
       
-      class RecordMeta
+      class RecordMeta # :nodoc:
         attr_reader :class_name, :record_class, :table_name
         
         def initialize(class_identifier)
@@ -119,6 +118,17 @@ module Scenario
           record_class.connection
         end
         
+        def id_reader
+          @id_reader ||= begin
+            reader = ActiveRecord::Base.pluralize_table_names ? table_name.singularize : table_name
+            "#{reader}_id".to_sym
+          end
+        end
+        
+        def record_reader
+          table_name.to_sym
+        end
+        
         def resolve_class_name(class_identifier)
           case class_identifier
           when Symbol
@@ -131,7 +141,7 @@ module Scenario
         end
       end
       
-      class ScenarioRecord
+      class ScenarioRecord # :nodoc:
         attr_reader :record_meta, :symbolic_name
         
         def initialize(record_meta, attributes, symbolic_name = nil)

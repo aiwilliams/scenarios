@@ -34,6 +34,10 @@ describe "Scenario example helper methods" do
     things(:two).name.should == "two"
   end
   
+  it "should include singular record id reader" do
+    thing_id(:one).should be_kind_of(Fixnum)
+  end
+  
   it "should include record creation methods" do
     create_record(:thing, :three, :name => "Three")
     things(:three).name.should == "Three"
