@@ -13,5 +13,11 @@ ActiveRecord::Schema.define do
     t.column "name", :string
     t.column "description", :string
   end
+  
+  create_table "notes", :force => true do |t|
+    t.column "content", :string
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+  end
 end
   

@@ -2,12 +2,12 @@ require File.dirname(__FILE__) + "/spec_helper"
 
 describe "Scenario loading" do
   it "should load from configured directories" do
-    Scenario.load(:simplest)
-    SimplestScenario
+    Scenario.load(:empty)
+    EmptyScenario
   end
   
   it "should allow us to add helper methods through the helpers class method" do
-    klass = :simplest.to_scenario
+    klass = :empty.to_scenario
     klass.helpers do
       def hello
         "Hello World"
@@ -76,7 +76,6 @@ describe "A complex composite scenario" do
   it "should allow us to use correct helper methods" do
     should respond_to(:create_place)
   end
-  
 end
 
 describe "Overlapping scenarios" do
@@ -85,4 +84,14 @@ describe "Overlapping scenarios" do
   it "should not cause scenarios to be loaded twice" do
     Person.find_all_by_first_name("John").size.should == 1
   end
+end
+
+describe "create_record class method" do
+  scenario :empty
+  
+  it "should automatically set timestamps" # do
+  #     create_record :note, :first, :content => "first note"
+  #     note = notes(:first)
+  #     note.created_at.should be_instance_of(DateTime)
+  #   end
 end
