@@ -34,8 +34,8 @@ module Test #:nodoc:
           suite = suite_without_scenarios
           class << suite
             attr_accessor :test_class
-            def run_with_scenarios(*args)
-              run_without_scenarios(*args)
+            def run_with_scenarios(*args, &block)
+              run_without_scenarios(*args, &block)
               test_class.loaded_scenarios.each { |s| s.unload } if test_class.loaded_scenarios && test_class.use_transactional_fixtures
             end
             alias_method_chain :run, :scenarios
