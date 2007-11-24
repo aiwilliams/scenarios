@@ -12,6 +12,14 @@ the appropriate records.
 
 === Quick Start
 
+WORK IN PROGRESS - You will need to be using rspec and rspec_on_rails revision
+2974, then apply the provided patch to rspec_on_rails like so:
+
+  cd vendor/plugins/rspec_on_rails
+  patch -p0 < ../scenarios/rspec_on_rails_load.patch
+
+
+
 Scenarios should be placed in the spec/scenarios directory of your Rails
 project. Scenario file names always end in "_scenario.rb" and classes end in
 "Scenario".

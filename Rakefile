@@ -20,7 +20,6 @@ databases.each do |db|
     puts "Running tests with #{db}..."
     Spec::Rake::SpecTask.new "spec:#{db}" do |t|
       t.spec_opts = ['--options', "\"#{SPEC_ROOT}/spec.opts\""]
-      puts "#{SPEC_ROOT}/**/*_spec.rb"
       t.spec_files = FileList["#{SPEC_ROOT}/**/*_spec.rb"]
     end
   end
@@ -55,6 +54,7 @@ namespace :spec do
       libs = {
         RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec",
         RSPEC_ON_RAILS_ROOT => "http://rspec.rubyforge.org/svn/trunk/rspec_on_rails",
+        ACTIONPACK_ROOT     => "http://svn.rubyonrails.org/rails/trunk/actionpack/",
         ACTIVERECORD_ROOT   => "http://svn.rubyonrails.org/rails/trunk/activerecord/",
         ACTIVESUPPORT_ROOT  => "http://svn.rubyonrails.org/rails/trunk/activesupport/"
       }

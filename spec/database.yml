@@ -3,7 +3,10 @@ mysql:
   :username: root
   :database: scenarios_spec
 
-sqlite3:
-  :adapter: sqlite3
-  :database: tmp/sqlite3.db
-  :timeout: 5000
+# There is presently a problem with using this driver
+#    undefined method `parse_sqlite_config!' for ActiveRecord::Base:Class
+# It began when I updated to activerecord revision 8199.
+# sqlite3:
+#   :adapter: sqlite3
+#   :database: tmp/sqlite3.db
+#   :timeout: 5000

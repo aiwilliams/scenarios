@@ -4,15 +4,21 @@ unless defined? DATABASE_ADAPTER
   $: << "#{SPEC_ROOT}"
   $: << "#{PLUGIN_ROOT}/lib"
   $: << "#{RSPEC_ROOT}/lib"
+  $: << "#{ACTIONPACK_ROOT}/lib"
   $: << "#{ACTIVERECORD_ROOT}/lib"
   $: << "#{ACTIVESUPPORT_ROOT}/lib"
   $: << "#{RSPEC_ON_RAILS_ROOT}/lib"
 
+  require 'active_support'
+  require 'active_record'
+  require 'action_controller'
+  require 'action_view'
+  
+  # TODO Make sure that scenarios.rb will load even when there is no rspec/rspec_on_rails available.
   require 'spec'
-  require 'activesupport'
-  require 'activerecord'
+  require 'spec/rails'
+
   require 'scenarios'
-  require 'scenarios/dsl/extensions'
   require 'logger'
 
   RAILS_DEFAULT_LOGGER = Logger.new("#{SUPPORT_TEMP}/test.log")
