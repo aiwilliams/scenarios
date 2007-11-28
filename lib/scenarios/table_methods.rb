@@ -10,15 +10,14 @@ module Scenarios
     # into the scenario and spec, and return the ID of the inserted record:
     #
     #   create_record :event, :name => "Ruby Hoedown"
-    #   create_record :event, :hoedown, :name => "Ruby Hoedown"
+    #   create_record Event, :hoedown, :name => "Ruby Hoedown"
     #
-    # The first form will create a new record in the given table (first
-    # parameter) with the appropriate attributes.
+    # The first form will create a new record in the given class identifier
+    # and no symbolic name (essentially).
     #
-    # The second form is exactly like the first, except for the fact that it
-    # requires that you pass a symbolic name as the second parameter. The
-    # symbolic name will allow you access to the record through a couple of
-    # helper methods:
+    # The second form is exactly like the first, except for that it provides a
+    # symbolic name as the second parameter. The symbolic name will allow you
+    # to access the record through a couple of helper methods:
     #
     #   events(:hoedown)    # The hoedown event
     #   event_id(:hoedown)  # The ID of the hoedown event
@@ -26,16 +25,36 @@ module Scenarios
     # These helper methods are only accessible for a particular table after
     # you have inserted a record into that table using <tt>create_record</tt>.
     def create_record(class_identifier, *args)
-      symbolic_name, attributes = extract_creation_arguments(args)
-      record_meta = (record_metas[class_identifier] ||= RecordMeta.new(class_identifier))
-      record      = ScenarioRecord.new(record_meta, attributes, symbolic_name)
-      ActiveRecord::Base.silence do
-        blast_table(record_meta.table_name) unless blasted_tables.include?(record_meta.table_name)
-        ActiveRecord::Base.connection.insert_fixture(record.to_fixture, record_meta.table_name)
-        symbolic_names_to_id[record_meta.table_name][record.symbolic_name] = record.id
-        update_table_readers(symbolic_names_to_id, record_meta)
+      insert(ScenarioRecord, class_identifier, *args) do |record|
+        ActiveRecord::Base.connection.insert_fixture(record.to_fixture, record.record_meta.table_name)
+        record.id
       end
-      record.id
+    end
+    
+    # Instantiate and save! a model, add the appropriate helper methods into
+    # the scenario and spec, and return the new model instance:
+    #
+    #   create_model :event, :name => "Ruby Hoedown"
+    #   create_model Event, :hoedown, :name => "Ruby Hoedown"
+    #
+    # The first form will create a new model with no symbolic name
+    # (essentially).
+    #
+    # The second form is exactly like the first, except for that it provides a
+    # symbolic name as the second parameter. The symbolic name will allow you
+    # to access the record through a couple of helper methods:
+    #
+    #   events(:hoedown)    # The hoedown event
+    #   event_id(:hoedown)  # The ID of the hoedown event
+    #
+    # These helper methods are only accessible for a particular table after
+    # you have inserted a record into that table using <tt>create_model</tt>.
+    def create_model(class_identifier, *args)
+      insert(ScenarioModel, class_identifier, *args) do |record|
+        model = record.to_model
+        model.save!
+        model
+      end
     end
     
     def blast_table(name) # :nodoc:
@@ -46,6 +65,19 @@ module Scenarios
     end
     
     private
+      def insert(record_or_model, class_identifier, *args, &insertion)
+        symbolic_name, attributes = extract_creation_arguments(args)
+        record_meta  = (record_metas[class_identifier] ||= RecordMeta.new(class_identifier))
+        record       = record_or_model.new(record_meta, attributes, symbolic_name)
+        return_value = nil
+        ActiveRecord::Base.silence do
+          blast_table(record_meta.table_name) unless blasted_tables.include?(record_meta.table_name)
+          return_value = insertion.call record
+          symbolic_names_to_id[record_meta.table_name][record.symbolic_name] = record.id
+          update_table_readers(symbolic_names_to_id, record_meta)
+        end
+        return_value
+      end
       
       def extract_creation_arguments(arguments)
         if arguments.size == 2 && arguments.last.kind_of?(Hash)
@@ -120,6 +152,25 @@ module Scenarios
           when String
             class_identifier
           end
+        end
+      end
+      
+      class ScenarioModel # :nodoc:
+        attr_reader :attributes, :model, :record_meta, :symbolic_name
+        delegate :id, :to => :model
+        
+        def initialize(record_meta, attributes, symbolic_name = nil)
+          @record_meta   = record_meta
+          @attributes    = attributes.stringify_keys
+          @symbolic_name = symbolic_name || object_id
+        end
+        
+        def to_hash
+          to_model.attributes
+        end
+        
+        def to_model
+          @model ||= record_meta.record_class.new(attributes)
         end
       end
       

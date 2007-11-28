@@ -132,7 +132,7 @@ describe "Overlapping scenarios" do
   end
 end
 
-describe "create_record class method" do
+describe "create_record table method" do
   scenario :empty
   
   it "should automatically set timestamps" do
@@ -140,4 +140,15 @@ describe "create_record class method" do
     note = notes(:first)
     note.created_at.should be_instance_of(Time)
   end
+end
+
+describe "create_model table method" do
+  scenario :empty
+  
+  it "should support symbolic names" do
+    thing = create_model Thing, :mything, :name => "My Thing", :description => "For testing"
+    things(:mything).should == thing
+  end
+  
+  it "should blast any table touched as a side effect of creating a model (callbacks, observers, etc.)"
 end
