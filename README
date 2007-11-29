@@ -12,14 +12,6 @@ the appropriate records.
 
 === Quick Start
 
-WORK IN PROGRESS - You will need to be using rspec and rspec_on_rails revision
-2974, then apply the provided patch to rspec_on_rails like so:
-
-  cd vendor/plugins/rspec_on_rails
-  patch -p0 < ../scenarios/rspec_on_rails_load.patch
-
-
-
 Scenarios should be placed in the spec/scenarios directory of your Rails
 project. Scenario file names always end in "_scenario.rb" and classes end in
 "Scenario".
@@ -168,6 +160,19 @@ scenarios:
 
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios
+
+=== Running Tests
+
+You will need to be using rspec and rspec_on_rails revision
+3014, then apply the provided patch to rspec_on_rails like so:
+
+  cd vendor/plugins/rspec_on_rails
+  patch -p0 < ../scenarios/rspec_on_rails_load.patch
+
+There is a problem of some kind with the load order. It doesn't happen when the plugin
+is used in a project; only when loading it for testing here.
+
+Now you should be able to simply run rake.
 
 === License
 

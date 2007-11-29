@@ -43,11 +43,12 @@ databases.each do |db|
     end
     
     desc "Obtains necessary libraries and database"
-    task :prepare => "db:#{db}:prepare" do
+    task :prepare do
       checkout_support_libs(
         RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec/",
         RSPEC_ON_RAILS_ROOT => "http://rspec.rubyforge.org/svn/trunk/rspec_on_rails/"
       )
+      Rake::Task["db:#{db}:prepare"].invoke
     end
   end
   
@@ -63,8 +64,9 @@ databases.each do |db|
     end
     
     desc "Obtains necessary libraries and database"
-    task :prepare => "db:#{db}:prepare" do
+    task :prepare do
       checkout_support_libs
+      Rake::Task["db:#{db}:prepare"].invoke
     end
   end
   
