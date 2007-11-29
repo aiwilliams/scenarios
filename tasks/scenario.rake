@@ -2,6 +2,8 @@ namespace :db do
   namespace :scenario do
     desc "Load a scenario into the current environment's database using SCENARIO=scenario_name"
     task :load => 'db:reset' do
+      ActiveRecord::Base.instantiate_observers
+      
       scenario_name = ENV['SCENARIO'] || 'default'
       begin
         klass = Scenarios.load(scenario_name)

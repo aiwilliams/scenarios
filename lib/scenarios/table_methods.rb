@@ -153,6 +153,10 @@ module Scenarios
             class_identifier
           end
         end
+        
+        def to_s
+          "#<RecordMeta: #{table_name}>"
+        end
       end
       
       class ScenarioModel # :nodoc:
