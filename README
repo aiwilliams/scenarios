@@ -186,6 +186,10 @@ scenarios:
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios_spec.rb
 * http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios/spec/scenarios
 
+Browse the complete source code:
+
+* http://faithfulcode.rubyforge.org/svn/plugins/trunk/scenarios
+
 === Running Tests
 
 If you are using RSpec you will need to be using rspec and rspec_on_rails revision
