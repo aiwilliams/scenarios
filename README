@@ -13,12 +13,13 @@ the appropriate records.
 === Quick Start
 
 Scenarios should be placed in the spec/scenarios directory of your Rails
-project. Scenario file names always end in "_scenario.rb" and classes end in
-"Scenario".
+project if you're using RSpec, or the test/scenarios directory of your
+Rails project if you're using Test::Unit. Scenario file names always end
+in "_scenario.rb" and classes end in "Scenario".
 
 A simple scenario looks like this:
 
-  # in spec/scenarios/users_scenario.rb
+  # in spec/scenarios/users_scenario.rb or test/scenarios/users_scenario.rb
   class UsersScenario < Scenario::Base
     def load
       create_record :user, :john, :name => 'John', :password => 'doodaht'
@@ -33,7 +34,7 @@ insert the record into, the second is the symbolic name of the record (more on
 that later), and the third is a hash of the attributes of the record.
 
 To use the UsersScenario in a description, you should declare it using
-the <tt>scenario</tt> method:
+the <tt>scenario</tt> method.  Here it is within a spec file (RSpec):
 
   # in spec/models/user_spec.rb
   describe User do
@@ -42,6 +43,19 @@ the <tt>scenario</tt> method:
     it "should allow me to do something with John" do
       user = users(:john)
       user.password.should == "doodaht"
+    end
+  end
+  
+and here it is within a standard Test::Unit test:
+
+  # in test/unit/user_test.rb
+  class UserTest < Test::Unit::TestCase
+
+    scenario :users
+    
+    def test_do_something
+      user = users(:john)
+      assert_equal "doodaht", user.password
     end
   end
 
@@ -58,7 +72,7 @@ scenarios plugin allows you to deal with this complexity through composition.
 
 Here's a simple example:
 
-  # in spec/scenarios/posts_scenario.rb
+  # in spec/scenarios/posts_scenario.rb or test/scenarios/posts_scenario.rb
   class PostsScenario < Scenario::Base
     def load
       create_record :post, :first, :title => "First Post"
@@ -66,7 +80,7 @@ Here's a simple example:
     end
   end
   
-  # in spec/scnearios/comments_scenario.rb
+  # in spec/scenarios/comments_scenario.rb or test/scenarios/comments_scenario.rb
   class CommentsScenario < Scenario::Base
     uses :posts
     
@@ -88,12 +102,12 @@ associations, as done here with comments and posts.
 
 === Helper Methods
 
-Another way of simplifying your scenarios and specs is through helper methods.
+Another way of simplifying your scenarios and specs/tests is through helper methods.
 The Scenarios plugin provides a handy way to declare helper methods that are
-accessible from inside the scenario and also from inside related RSpec
+accessible from inside the scenario and also from inside related RSpec/Test::Unit
 examples:
 
-  # in spec/scenarios/users_scenario.rb
+  # in spec/scenarios/users_scenario.rb or test/scenarios/users_scenario.rb
   class UsersScenario < Scenario::Base
     def load
       create_user :name => "John"
@@ -125,9 +139,20 @@ another, the using scenario will have the helper methods of the used scenario.
     end
   end
 
-Notice that in the RSpec example I have access to the login_as helper
-method declared inside the <tt>helpers</tt> block of the UsersScenario.
-Scenario helpers are a great way to share helper methods between specs that
+  # in test/functional/projects_controller_test.rb
+  class PeopleControllerTest < Test::Unit::TestCase
+    scenario :users
+    
+    def test_index
+      login_as(users(:john))
+      get :projects
+      assert_tag('#active_projects')
+    end
+  end
+
+Notice that within my specs/tests I have access to the login_as helper method
+declared inside the <tt>helpers</tt> block of the UsersScenario.
+Scenario helpers are a great way to share helper methods between specs/tests that
 use a specific scenario.
 
 === Load Rake Task
@@ -163,7 +188,7 @@ scenarios:
 
 === Running Tests
 
-You will need to be using rspec and rspec_on_rails revision
+If you are using RSpec you will need to be using rspec and rspec_on_rails revision
 3014, then apply the provided patch to rspec_on_rails like so:
 
   cd vendor/plugins/rspec_on_rails
