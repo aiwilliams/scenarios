@@ -3,8 +3,10 @@ module Scenarios
   # available to all Scenario instances, test and example classes, and test
   # and example instances.
   module TableMethods
-    attr_accessor :table_config
-    delegate :table_readers, :blasted_tables, :record_metas, :symbolic_names_to_id, :to => :table_config
+    include TableBlasting
+    
+    attr_accessor :table_config unless respond_to?(:table_config)
+    delegate :table_readers, :record_metas, :symbolic_names_to_id, :to => :table_config
     
     # Insert a record into the database, add the appropriate helper methods
     # into the scenario and spec, and return the ID of the inserted record:
@@ -55,13 +57,6 @@ module Scenarios
         model.save!
         model
       end
-    end
-    
-    def blast_table(name) # :nodoc:
-      ActiveRecord::Base.silence do
-        ActiveRecord::Base.connection.delete "DELETE FROM #{name}", "Scenario Delete"
-      end
-      blasted_tables << name
     end
     
     private

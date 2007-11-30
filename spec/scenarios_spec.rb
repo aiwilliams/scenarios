@@ -150,5 +150,8 @@ describe "create_model table method" do
     things(:mything).should == thing
   end
   
-  it "should blast any table touched as a side effect of creating a model (callbacks, observers, etc.)"
+  it "should blast any table touched as a side effect of creating a model (callbacks, observers, etc.)" do
+    create_model SideEffectyThing
+    blasted_tables.should include(Thing.table_name)
+  end
 end

@@ -22,6 +22,7 @@ Scenario = Scenarios
 
 require 'active_record/fixtures'
 require 'scenarios/configuration'
+require 'scenarios/table_blasting'
 require 'scenarios/table_methods'
 require 'scenarios/loading'
 require 'scenarios/base'
