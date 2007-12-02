@@ -65,6 +65,19 @@ example above, I loaded John with the reader method <tt>users</tt> and the
 symbolic name <tt>:john</tt>. (Remember that in the Users scenario I declared
 that John should be accessible through the symbolic name <tt>:john</tt>.)
 
+I could also have retrieved an array of user fixtures by passing in
+multiple symbolic names to the reader method:
+
+  # in spec/models/user_spec.rb
+  describe User do
+    scenario :users
+    
+    it "should allow me to get all admins" do
+      admins = users(:john, :ryan)
+      User.admins.should eql(admins)
+    end
+  end
+
 === Composition
 
 In real life your scenarios will probably grow quite complicated. The

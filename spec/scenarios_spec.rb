@@ -62,13 +62,23 @@ describe "Scenario example helper methods" do
     models(:raking).should_not be_nil
   end
   
-  it "should include pluralized record name readers" do
+  it "should include pluralized record name readers that accept a single record name" do
     things(:one).should be_kind_of(Thing)
     things(:two).name.should == "two"
   end
   
-  it "should include singular record id reader" do
+  it "should include pluralized record name readers that accept multiple record names" do
+    things(:one, :two).should be_kind_of(Array)
+    things(:one, :two).should eql([things(:one), things(:two)])
+  end
+  
+  it "should include singular record id reader that takes a single record name" do
     thing_id(:one).should be_kind_of(Fixnum)
+  end
+  
+  it "should include singular record id reader that takes multiple record names" do
+    thing_id(:one, :two).should be_kind_of(Array)
+    thing_id(:one, :two).should eql([thing_id(:one), thing_id(:two)])
   end
   
   it "should include record creation methods" do

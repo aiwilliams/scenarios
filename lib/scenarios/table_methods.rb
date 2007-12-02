@@ -85,13 +85,19 @@ module Scenarios
       end
       
       def update_table_readers(ids, record_meta)
-        table_readers.send :define_method, record_meta.id_reader do |symbolic_name|
-          record_id = ids[record_meta.table_name][symbolic_name]
-          raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
-          record_id
-        end
-        table_readers.send :define_method, record_meta.record_reader do |symbolic_name|
-          record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
+        table_readers.send :define_method, record_meta.id_reader do |*symbolic_names|
+          record_ids = symbolic_names.flatten.collect do |symbolic_name|
+            record_id = ids[record_meta.table_name][symbolic_name]
+            raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
+            record_id
+          end
+          record_ids.size > 1 ? record_ids : record_ids.first
+        end        
+        table_readers.send :define_method, record_meta.record_reader do |*symbolic_names|
+          results = symbolic_names.flatten.collect do |symbolic_name|
+            record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
+          end
+          results.size > 1 ? results : results.first
         end
         metaclass.send :include, table_readers
       end
