@@ -12,10 +12,17 @@ the appropriate records.
 
 === Quick Start
 
-Scenarios should be placed in the spec/scenarios directory of your Rails
-project if you're using RSpec, or the test/scenarios directory of your
-Rails project if you're using Test::Unit. Scenario file names always end
-in "_scenario.rb" and classes end in "Scenario".
+Since Scenarios is a Rails plugin at this time, you should get it installed,
+using the appropriate method (script/plugin, svn, piston) into your
+vendor/plugins directory. Once you have this, in your spec_helper.rb or
+test_helper.rb, add the following line after the environment require:
+
+  require 'scenarios'
+
+The Scenarios you write should be placed in the spec/scenarios directory of your
+Rails project if you're using RSpec, or the test/scenarios directory of your
+Rails project if you're using Test::Unit. Scenario file names always end in
+"_scenario.rb" and classes end in "Scenario".
 
 A simple scenario looks like this:
 

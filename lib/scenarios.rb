@@ -20,6 +20,7 @@ end
 # The Scenario namespace makes for Scenario::Base.
 Scenario = Scenarios
 
+require 'test/unit'
 require 'active_record/fixtures'
 require 'scenarios/configuration'
 require 'scenarios/table_blasting'
