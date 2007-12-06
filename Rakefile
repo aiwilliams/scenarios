@@ -1,103 +1,59 @@
 require 'rubygems'
 gem 'rake'; require 'rake'
 require 'rake/rdoctask'
-require 'yaml'
+require File.expand_path("#{File.dirname(__FILE__)}/testing/environment")
 
-require File.expand_path("#{File.dirname(__FILE__)}/app/environment")
+TESTING_ENVIRONMENTS["rspec_trunk_rails_trunk"].load
+require 'rake/testtask'
+require "spec/rake/spectask"
 
-def checkout_support_libs(additional = {})
-  mkdir_p SUPPORT_LIB
-  libs = {
-    ACTIONPACK_ROOT     => "http://svn.rubyonrails.org/rails/trunk/actionpack/",
-    ACTIVERECORD_ROOT   => "http://svn.rubyonrails.org/rails/trunk/activerecord/",
-    ACTIVESUPPORT_ROOT  => "http://svn.rubyonrails.org/rails/trunk/activesupport/"
-  }.merge(additional)
-  needed = libs.keys.reject { |dir| File.directory?(dir) }
-  if needed.empty?
-    puts "Support libraries are in place. Skipping checkout."
-  else
-    needed.each { |root| system "svn export #{libs[root]} #{root}" }
+spec_tasks = []
+test_tasks = []
+TESTING_ENVIRONMENTS.each do |env|
+  namespace env.name do
+    env.databases.each do |database|
+      
+      namespace database do
+        task :prepare do
+          content = %Q{TESTING_ENVIRONMENT = '#{env.name}'\nDATABASE_ADAPTER = '#{database}'}
+          File.open("#{SUPPORT_TEMP}/environment.rb", "w") {|f| f.puts content}
+          puts content
+        end
+        
+        if env.name =~ /^rspec/ # We can't use rspec if the environment doesn't support it
+          desc "Run specs in environment '#{env.name}' using database '#{database}'"
+          Spec::Rake::SpecTask.new(:spec => "#{env.name}:#{database}:prepare") do |t|
+            t.fail_on_error = false
+            t.spec_opts = ['--options', "\"#{SPEC_ROOT}/spec.opts\""]
+            t.spec_files = FileList["#{SUPPORT_TEMP}/environment.rb", "#{SPEC_ROOT}/**/*_spec.rb"]
+            t.verbose = false
+          end
+          spec_tasks << "#{env.name}:#{database}:spec"
+        end
+        
+        desc "Run tests in environment '#{env.name}' using database '#{database}'"
+        Rake::TestTask.new(:test => "#{env.name}:#{database}:prepare") do |t|
+          t.test_files = FileList["#{SUPPORT_TEMP}/environment.rb", "test/**/*_test.rb"]
+          t.verbose = false
+        end
+        test_tasks << "#{env.name}:#{database}:test"
+        
+      end
+    end
   end
 end
 
-config = YAML.load(IO.read(DB_CONFIG_FILE))
-databases = config.keys
-
-desc "Run all specs using all databases"
-task :spec => databases.map { |db| "spec:#{db}" }
-
-desc "Run all unit tests using all databases"
-task :test => databases.map { |db| "test:#{db}" }
-
-databases.each do |db|
-  namespace :spec do
-    desc "Run all specs using #{db}"
-    task db => "spec:prepare" do
-      require "#{RSPEC_ROOT}/lib/spec/rake/spectask"
-      puts "Running specs with #{db}..."
-      Spec::Rake::SpecTask.new do |t|
-        t.fail_on_error = false
-        t.spec_opts = ['--options', "\"#{SPEC_ROOT}/spec.opts\""]
-        t.spec_files = FileList["#{SPEC_ROOT}/**/*_spec.rb"]
-      end
-    end
-    
-    desc "Obtains necessary libraries and database"
-    task :prepare do
-      checkout_support_libs(
-        RSPEC_ROOT          => "http://rspec.rubyforge.org/svn/trunk/rspec/",
-        RSPEC_ON_RAILS_ROOT => "http://rspec.rubyforge.org/svn/trunk/rspec_on_rails/"
-      )
-      Rake::Task["db:#{db}:prepare"].invoke
-    end
+desc "Run specs in all environments"
+task :spec do
+  spec_tasks.each do |task|
+    system "rake '#{task}'"
   end
-  
-  namespace :test do
-    desc "Run all unit tests using #{db}"
-    task db => "test:prepare" do
-      require 'rake/testtask'
-      puts "Run unit tests with #{db}..."
-      Rake::TestTask.new do |t|
-        t.pattern = 'test/**/*_test.rb'
-        t.verbose = true
-      end
-    end
-    
-    desc "Obtains necessary libraries and database"
-    task :prepare do
-      checkout_support_libs
-      Rake::Task["db:#{db}:prepare"].invoke
-    end
-  end
-  
-  desc "Cleanup generated assets"
-  task :clean do
-    rm_rf SUPPORT_LIB
-    puts "cleaned #{SUPPORT_LIB}"
-  end
-  
-  desc "Prepare the #{db} database"
-  task "db:#{db}:prepare" do
-    ENV['DB'] = db
-    cd PLUGIN_ROOT do
-      name = config[db][:database]
-      case db
-      when "mysql"
-        system "mysqladmin -uroot drop #{name} --force"
-        system "mysqladmin -uroot create #{name}"
-      when "sqlite3"
-        rm_rf name
-        touch name
-      else
-        raise "Unknown database #{db}"
-      end
-      require "#{ACTIVERECORD_ROOT}/lib/activerecord"
-      ActiveRecord::Base.silence do
-        ActiveRecord::Base.configurations = config
-        ActiveRecord::Base.establish_connection db
-        load DB_SCHEMA_FILE
-      end
-    end
+end
+
+desc "Run tests in all environments"
+task :test do
+  test_tasks.each do |task|
+    system "rake '#{task}'"
   end
 end
 
@@ -108,9 +64,5 @@ Rake::RDocTask.new(:doc) do |r|
   r.rdoc_files.include("README", "LICENSE", "lib/**/*.rb")
   r.rdoc_dir = "doc"
 end
-  
-task :default do
-  cd PLUGIN_ROOT do
-    system "rake spec && rake test"
-  end
-end
+
+task :default => [:spec, :test]

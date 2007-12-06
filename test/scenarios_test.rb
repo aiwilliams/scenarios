@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + "/test_helper")
 
 raise "RSpec should not have been loaded" if defined?(Spec)
 
