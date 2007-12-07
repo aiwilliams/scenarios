@@ -87,7 +87,7 @@ module Scenarios
       def update_table_readers(ids, record_meta)
         table_readers.send :define_method, record_meta.id_reader do |*symbolic_names|
           record_ids = symbolic_names.flatten.collect do |symbolic_name|
-            record_id = ids[record_meta.table_name][symbolic_name]
+            record_id = ids[record_meta.table_name][symbolic_name.to_sym]
             raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
             record_id
           end

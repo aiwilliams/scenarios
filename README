@@ -212,16 +212,11 @@ Browse the complete source code:
 
 === Running Tests
 
-If you are using RSpec you will need to be using rspec and rspec_on_rails revision
-3014, then apply the provided patch to rspec_on_rails like so:
-
-  cd vendor/plugins/rspec_on_rails
-  patch -p0 < ../scenarios/rspec_on_rails_load.patch
-
-There is a problem of some kind with the load order. It doesn't happen when the plugin
-is used in a project; only when loading it for testing here.
-
-Now you should be able to simply run rake.
+You should be able to simply run rake. Notice in testing/environment.rb the
+revisions under which this project will work. If you intend to test against
+HEAD, you will need to delete the directory testing/tmp/trunk/HEAD. At some
+point, it would be nice to have the script track the revision of HEAD that we
+have, and update the directory automatically.
 
 === License
 

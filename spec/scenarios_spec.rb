@@ -64,6 +64,7 @@ describe "Scenario example helper methods" do
   
   it "should include pluralized record name readers that accept a single record name" do
     things(:one).should be_kind_of(Thing)
+    things("one").should be_kind_of(Thing)
     things(:two).name.should == "two"
   end
   
@@ -74,11 +75,13 @@ describe "Scenario example helper methods" do
   
   it "should include singular record id reader that takes a single record name" do
     thing_id(:one).should be_kind_of(Fixnum)
+    thing_id("one").should be_kind_of(Fixnum)
   end
   
   it "should include singular record id reader that takes multiple record names" do
     thing_id(:one, :two).should be_kind_of(Array)
     thing_id(:one, :two).should eql([thing_id(:one), thing_id(:two)])
+    thing_id("one", "two").should eql([thing_id(:one), thing_id(:two)])
   end
   
   it "should include record creation methods" do
