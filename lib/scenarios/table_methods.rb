@@ -28,7 +28,13 @@ module Scenarios
     # you have inserted a record into that table using <tt>create_record</tt>.
     def create_record(class_identifier, *args)
       insert(ScenarioRecord, class_identifier, *args) do |record|
-        ActiveRecord::Base.connection.insert_fixture(record.to_fixture, record.record_meta.table_name)
+        meta = record.record_meta
+        fixture = record.to_fixture
+        begin
+          meta.connection.insert_fixture(fixture, record.record_meta.table_name)
+        rescue # Rails 1.2 compatible!
+          meta.connection.execute "INSERT INTO #{meta.table_name} (#{fixture.key_list}) VALUES (#{fixture.value_list})"
+        end
         record.id
       end
     end
@@ -87,15 +93,22 @@ module Scenarios
       def update_table_readers(ids, record_meta)
         table_readers.send :define_method, record_meta.id_reader do |*symbolic_names|
           record_ids = symbolic_names.flatten.collect do |symbolic_name|
-            record_id = ids[record_meta.table_name][symbolic_name.to_sym]
-            raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
-            record_id
+            if symbolic_name.kind_of?(ActiveRecord::Base)
+              symbolic_name.id
+            else
+              record_id = ids[record_meta.table_name][symbolic_name.to_sym]
+              raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
+              record_id
+            end
           end
           record_ids.size > 1 ? record_ids : record_ids.first
-        end        
+        end
+        
         table_readers.send :define_method, record_meta.record_reader do |*symbolic_names|
           results = symbolic_names.flatten.collect do |symbolic_name|
-            record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
+            symbolic_name.kind_of?(ActiveRecord::Base) ?
+              symbolic_name :
+              record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
           end
           results.size > 1 ? results : results.first
         end

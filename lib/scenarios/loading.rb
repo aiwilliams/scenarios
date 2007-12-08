@@ -9,7 +9,7 @@ module Scenarios
     
     def load_scenarios(scenario_classes)
       self.table_config = Configuration.new
-      ActiveRecord::ConnectionAdapters::AbstractAdapter.table_config = self.table_config
+      ActiveRecord::Base.table_config = self.table_config
       self.class.loaded_scenarios = []
       previous_scenario = nil
       if scenario_classes

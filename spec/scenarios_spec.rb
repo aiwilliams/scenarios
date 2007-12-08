@@ -54,34 +54,12 @@ describe "Scenario loading" do
   end
 end
 
-describe "Scenario example helper methods" do
+describe Scenarios::TableMethods do
   scenario :things
   
   it "should understand namespaced models" do
     create_record "ModelModule::Model", :raking, :name => "Raking", :description => "Moving leaves around"
     models(:raking).should_not be_nil
-  end
-  
-  it "should include pluralized record name readers that accept a single record name" do
-    things(:one).should be_kind_of(Thing)
-    things("one").should be_kind_of(Thing)
-    things(:two).name.should == "two"
-  end
-  
-  it "should include pluralized record name readers that accept multiple record names" do
-    things(:one, :two).should be_kind_of(Array)
-    things(:one, :two).should eql([things(:one), things(:two)])
-  end
-  
-  it "should include singular record id reader that takes a single record name" do
-    thing_id(:one).should be_kind_of(Fixnum)
-    thing_id("one").should be_kind_of(Fixnum)
-  end
-  
-  it "should include singular record id reader that takes multiple record names" do
-    thing_id(:one, :two).should be_kind_of(Array)
-    thing_id(:one, :two).should eql([thing_id(:one), thing_id(:two)])
-    thing_id("one", "two").should eql([thing_id(:one), thing_id(:two)])
   end
   
   it "should include record creation methods" do
@@ -92,6 +70,53 @@ describe "Scenario example helper methods" do
   it "should include other example helper methods" do
     create_thing("The Thing")
     things(:the_thing).name.should == "The Thing"
+  end
+  
+  describe "for retrieving objects" do
+    it "should have a pluralized name" do
+      should respond_to("things")
+      should_not respond_to("thing")
+    end
+    
+    it "should answer a single object given a single name" do
+      things(:one).should be_kind_of(Thing)
+      things("one").should be_kind_of(Thing)
+      things(:two).name.should == "two"
+    end
+    
+    it "should answer an array of objects given multiple names" do
+      things(:one, :two).should be_kind_of(Array)
+      things(:one, :two).should eql([things(:one), things(:two)])
+    end
+    
+    it "should just return the argument if an AR instance is given" do
+      thing = things(:one)
+      things(thing).should eql(thing)
+    end
+  end
+  
+  describe "for retrieving ids" do
+    it "should have a singular name" do
+      should respond_to("thing_id")
+      should_not respond_to("thing_ids")
+      should_not respond_to("things_id")
+    end
+    
+    it "should answer a single id given a single name" do
+      thing_id(:one).should be_kind_of(Fixnum)
+      thing_id("one").should be_kind_of(Fixnum)
+    end
+    
+    it "should answer an array of ids given multiple names" do
+      thing_id(:one, :two).should be_kind_of(Array)
+      thing_id(:one, :two).should eql([thing_id(:one), thing_id(:two)])
+      thing_id("one", "two").should eql([thing_id(:one), thing_id(:two)])
+    end
+    
+    it "should answer the id of the argument if an AR instance id given" do
+      thing = things(:one)
+      thing_id(thing).should == thing.id
+    end
   end
 end
 

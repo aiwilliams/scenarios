@@ -17,8 +17,13 @@ module Scenarios
   end
 end
 
-# The Scenario namespace makes for Scenario::Base.
+# The Scenario namespace makes for Scenario::Base
 Scenario = Scenarios
+
+# For Rails 1.2 compatibility
+unless Class.instance_methods.include?(:superclass_delegating_reader)
+  require File.dirname(__FILE__) + "/scenarios/extensions/delegating_attributes"
+end
 
 require 'active_record/fixtures'
 require 'scenarios/configuration'
