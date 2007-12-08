@@ -15,7 +15,7 @@ the appropriate records.
 Since Scenarios is a Rails plugin at this time, you should get it installed,
 using the appropriate method (script/plugin, svn, piston) into your
 vendor/plugins directory. Once you have this, in your spec_helper.rb or
-test_helper.rb, add the following line after the environment require:
+test_helper.rb, add the following line after the spec requires:
 
   require 'scenarios'
 
