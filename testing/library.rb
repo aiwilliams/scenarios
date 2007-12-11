@@ -113,7 +113,7 @@ module TestingLibrary
     end
     
     def update
-      system "svn export -r#{scmrev} #{scmuri} #{support_directory}"
+      system "svn co -r#{scmrev} #{scmuri} #{support_directory}"
     end
     
     # http://dev.rubyonrails.org/rails/trunk/activerecord

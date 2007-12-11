@@ -5,8 +5,7 @@ module Scenarios
   module TableMethods
     include TableBlasting
     
-    attr_accessor :table_config unless respond_to?(:table_config)
-    delegate :table_readers, :record_metas, :symbolic_names_to_id, :to => :table_config
+    delegate :record_metas, :to => :table_config
     
     # Insert a record into the database, add the appropriate helper methods
     # into the scenario and spec, and return the ID of the inserted record:
@@ -72,10 +71,10 @@ module Scenarios
         record       = record_or_model.new(record_meta, attributes, symbolic_name)
         return_value = nil
         ActiveRecord::Base.silence do
-          blast_table(record_meta.table_name) unless blasted_tables.include?(record_meta.table_name)
+          prepare_table(record_meta.table_name)
           return_value = insertion.call record
-          symbolic_names_to_id[record_meta.table_name][record.symbolic_name] = record.id
-          update_table_readers(symbolic_names_to_id, record_meta)
+          table_config.update_table_readers(record)
+          self.extend table_config.table_readers
         end
         return_value
       end
@@ -88,35 +87,6 @@ module Scenarios
         else
           [nil, Hash.new]
         end
-      end
-      
-      def update_table_readers(ids, record_meta)
-        table_readers.send :define_method, record_meta.id_reader do |*symbolic_names|
-          record_ids = symbolic_names.flatten.collect do |symbolic_name|
-            if symbolic_name.kind_of?(ActiveRecord::Base)
-              symbolic_name.id
-            else
-              record_id = ids[record_meta.table_name][symbolic_name.to_sym]
-              raise ActiveRecord::RecordNotFound, "No object is associated with #{record_meta.table_name}(:#{symbolic_name})" unless record_id
-              record_id
-            end
-          end
-          record_ids.size > 1 ? record_ids : record_ids.first
-        end
-        
-        table_readers.send :define_method, record_meta.record_reader do |*symbolic_names|
-          results = symbolic_names.flatten.collect do |symbolic_name|
-            symbolic_name.kind_of?(ActiveRecord::Base) ?
-              symbolic_name :
-              record_meta.record_class.find(send(record_meta.id_reader, symbolic_name))
-          end
-          results.size > 1 ? results : results.first
-        end
-        metaclass.send :include, table_readers
-      end
-      
-      def metaclass
-        (class << self; self; end)
       end
       
       class RecordMeta # :nodoc:

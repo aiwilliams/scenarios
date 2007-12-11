@@ -1,37 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 
-describe "test/unit support" do
-  before do
-    @test_result = Test::Unit::TestResult.new
-    @test_case = Class.new(Test::Unit::TestCase)
-    @test_case.module_eval do
-      scenario :things
-      def test_something; end
-    end
-  end
-  
-  it "should extend TestSuite to allow for scenario unloading after suite has run" do
-    suite = @test_case.suite
-    suite.should respond_to("run_with_scenarios")
-    lambda { suite.run(@test_result) {} }.should_not raise_error
-  end
-  
-  it "should give the test all the helper methods" do
-    @test_case.instance_methods.should include("create_record")
-  end
-  
-  it "should work even when RSpec is installed" do pending("A ton of refactoring is going on - they've modified TestCase a lot")
-    test = @test_case.new("test_something")
-    lambda { test.run(@test_result) {} }.should_not raise_error
-    test.things(:one).should_not be_nil
-  end
-  
-  it "should load scenarios on setup and install helpers" do
-    test = @test_case.new(Spec::Example::Example.new("ugh, they've changed the signature!") {})
-    lambda { test.setup; test.run }.should_not raise_error
-    test.things(:one).should_not be_nil
-  end
-end
+start_debugger
 
 describe "Scenario loading" do
   it "should load from configured directories" do
@@ -51,6 +20,18 @@ describe "Scenario loading" do
       end
     end
     klass.new.methods.should include('hello')
+  end
+  
+  it "should load the scenarios only once per test class/example group, then unload at the end" do
+    tracking_scenario = Class.new(Scenario::Base)
+    tracking_scenario_instance = tracking_scenario.new
+    tracking_scenario.should_receive(:new).once.and_return(tracking_scenario_instance)
+    example_test = Class.new(Test::Unit::TestCase) do
+      scenario tracking_scenario
+      def test_one; end
+      def test_two; end
+    end
+    example_test.suite.run
   end
 end
 

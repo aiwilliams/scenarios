@@ -12,5 +12,9 @@ module Scenarios
       end
       blasted_tables << name
     end
+    
+    def prepare_table(name)
+      blast_table(name) unless blasted_tables.include?(name)
+    end
   end
 end

@@ -39,12 +39,15 @@ module Scenarios
     include TableMethods
     include Loading
     
+    attr_reader :table_config
+    
     # Initialize a scenario with a Configuration. Used internally by the
     # Scenarios plugin.
     def initialize(config = Configuration.new)
-      self.table_config = config
+      @table_config = config
+      table_config.update_scenario_helpers self.class
       self.extend table_config.table_readers
-      self.extend self.class.helpers
+      self.extend table_config.scenario_helpers
     end
     
     # This method should be implemented in your scenarios. You may also have
