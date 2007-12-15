@@ -61,7 +61,13 @@ module Scenarios
     # clean database for successive runs. Used internally by the Scenarios
     # plugin.
     def unload
+      return if unloaded?
       record_metas.each_value { |meta| blast_table(meta.table_name) }
+      @unloaded = true
+    end
+    
+    def unloaded?
+      @unloaded == true
     end
   end
 end

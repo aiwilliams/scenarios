@@ -11,7 +11,8 @@ unless defined?(PLUGIN_ROOT)
   DB_CONFIG_FILE      = "#{TESTING_ROOT}/database.yml"
   DB_SCHEMA_FILE      = "#{TESTING_ROOT}/schema.rb"
   
-  TESTING_ENVIRONMENT = "RSpec/Rails Trunk" unless defined?(TESTING_ENVIRONMENT)
+  DATABASE_ADAPTER    = "mysql" unless defined?(DATABASE_ADAPTER)
+  TESTING_ENVIRONMENT = "rspec_3119_rails_8375" unless defined?(TESTING_ENVIRONMENT)
   
   TESTING_ENVIRONMENTS = []
   def TESTING_ENVIRONMENTS.[](name)

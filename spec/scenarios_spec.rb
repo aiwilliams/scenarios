@@ -1,7 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 
-start_debugger
-
 describe "Scenario loading" do
   it "should load from configured directories" do
     Scenario.load(:empty)
@@ -22,16 +20,26 @@ describe "Scenario loading" do
     klass.new.methods.should include('hello')
   end
   
-  it "should load the scenarios only once per test class/example group, then unload at the end" do
-    tracking_scenario = Class.new(Scenario::Base)
-    tracking_scenario_instance = tracking_scenario.new
-    tracking_scenario.should_receive(:new).once.and_return(tracking_scenario_instance)
-    example_test = Class.new(Test::Unit::TestCase) do
-      scenario tracking_scenario
-      def test_one; end
-      def test_two; end
+  it "should load the scenarios only once per test class/example group, then unload at the end, even on exception of any test" do
+    tracking_scenario = Class.new((:things).to_scenario) do
+      cattr_accessor :instance
+      def initialize(*args)
+        raise "Should only be created once" if self.class.instance
+        self.class.instance = super(*args)
+      end
     end
-    example_test.suite.run
+    
+    test_case = Class.new(Test::Unit::TestCase) do
+      scenario tracking_scenario
+      def test_something; end
+      def test_bad_stuff
+        # raise "bad stuff"
+      end
+    end
+    
+    test_case.suite.run
+    
+    tracking_scenario.instance.should be_unloaded
   end
 end
 

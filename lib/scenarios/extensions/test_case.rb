@@ -37,7 +37,7 @@ module Test #:nodoc:
             attr_accessor :test_class
             def run_with_scenarios(*args, &block)
               run_without_scenarios(*args, &block)
-              test_class.table_config.loaded_scenarios.each { |s| s.unload } if test_class.use_transactional_fixtures
+              test_class.table_config.loaded_scenarios.each { |s| s.unload } if test_class.table_config
             end
             alias_method_chain :run, :scenarios
           end
@@ -51,8 +51,10 @@ module Test #:nodoc:
       # is expected to be called in a fashion respective of
       # use_transactional_fixtures. I feel like a leech.
       def load_fixtures
-        self.class.table_config ||= Scenarios::Configuration.new
-        load_scenarios(scenario_classes) if !scenarios_loaded? || !use_transactional_fixtures?
+        if !scenarios_loaded? || !use_transactional_fixtures?
+          self.class.table_config = Scenarios::Configuration.new if !use_transactional_fixtures? || table_config.nil?
+          load_scenarios(scenario_classes)
+        end
         self.extend scenario_helpers
         self.extend table_readers
       end

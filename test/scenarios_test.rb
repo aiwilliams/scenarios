@@ -5,17 +5,26 @@ raise "RSpec should not have been loaded" if defined?(Spec)
 class ScenariosTest < Test::Unit::TestCase
   def setup
     @test_result = Test::Unit::TestResult.new
-    @test_case = Class.new(Test::Unit::TestCase)
-    @test_case.module_eval do
-      scenario :things
+
+    tracking_scenario = @tracking_scenario = Class.new((:things).to_scenario) do
+      cattr_accessor :instance
+      def initialize(*args)
+        raise "Should only be created once" if self.class.instance
+        self.class.instance = super(*args)
+      end
+    end
+    @test_case = Class.new(Test::Unit::TestCase) do
+      scenario tracking_scenario
       def test_something; end
+      def test_bad_stuff
+        raise "bad stuff"
+      end
     end
   end
   
-  def test_should_extend_TestSuite_to_allow_for_scenario_unloading_after_suite_has_run
-    suite = @test_case.suite
-    assert suite.respond_to?("run_with_scenarios")
-    assert_nothing_raised { suite.run(@test_result) {} }
+  def test_should_unload_scenario_at_end_of_run
+    @test_case.suite.run(@test_result) {}
+    assert @tracking_scenario.instance.unloaded?
   end
   
   def test_should_give_the_test_all_the_helper_methods
