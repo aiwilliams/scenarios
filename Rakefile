@@ -1,9 +1,7 @@
-require 'rubygems'
-gem 'rake'; require 'rake'
-require 'rake/rdoctask'
 require File.expand_path("#{File.dirname(__FILE__)}/testing/environment")
 
 TESTING_ENVIRONMENTS["rspec_3119_rails_8375"].load
+require 'rake/rdoctask'
 require 'rake/testtask'
 require "spec/rake/spectask"
 

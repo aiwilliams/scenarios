@@ -5,7 +5,7 @@ module Scenarios
   class << self
     # The locations from which scenarios will be loaded.
     mattr_accessor :load_paths
-    self.load_paths = ["#{RAILS_ROOT}/spec/scenarios", "#{RAILS_ROOT}/test/scenarios"]
+    self.load_paths = ["#{RAILS_ROOT}/spec/scenarios", "#{RAILS_ROOT}/test/scenarios", "#{File.dirname(__FILE__)}/scenarios/builtin"]
     
     # Load a scenario by name. <tt>scenario_name</tt> can be a string, symbol,
     # or the scenario class.

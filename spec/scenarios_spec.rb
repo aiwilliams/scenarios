@@ -41,6 +41,11 @@ describe "Scenario loading" do
     
     tracking_scenario.instance.should be_unloaded
   end
+  
+  it "should provide a built-in scenario named :blank which clears all tables found in schema.rb" do
+    Scenario.load(:blank)
+    BlankScenario
+  end
 end
 
 describe Scenarios::TableMethods do

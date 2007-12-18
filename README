@@ -10,6 +10,28 @@ of encouraging you to create a mindless amount of raw data in the form of
 YAML, scenarios encourage you to create code that populates your tables with
 the appropriate records.
 
+How is it different from other solutions? A few things:
+
+ * It continues to provide a fundamental, fast insertion method using attributes
+   written directly to a table. This is the
+   Scenarios::TableMethods#create_record method.
+
+ * It allows you to create records using validations if you prefer, or if it's
+   important to have all your callbacks be invoked. See
+   Scenarios::TableMethods#create_model. Both create_record and create_model
+   allow you to name your instances for retrieval by the instance and id reader
+   methods (more below).
+
+ * Nothing stops you from simply invoking YouModel.create!, etc. We'll still
+   keep track of the tables the scenario modifies and clean things up afterward.
+
+ * It allows you to create re-usable scenarios as classes. These classes are
+   like any other class - they may include modules, subclass, and be composed of
+   other scenarios. See Scenarios::Base.uses. This also means that you can load
+   any scenario into any Rails environment. That's what the 'rake
+   db:scenario:load' task is good for (more below). Very handy for re-using all
+   that test support code to create populated demos!
+
 === Quick Start
 
 Since Scenarios is a Rails plugin at this time, you should get it installed,
@@ -122,10 +144,10 @@ associations, as done here with comments and posts.
 
 === Helper Methods
 
-Another way of simplifying your scenarios and specs/tests is through helper methods.
-The Scenarios plugin provides a handy way to declare helper methods that are
-accessible from inside the scenario and also from inside related RSpec/Test::Unit
-examples:
+Another way of simplifying your scenarios and specs/tests is through helper
+methods. The Scenarios plugin provides a handy way to declare helper methods
+that are accessible from inside the scenario and also from inside related
+RSpec/Test::Unit examples:
 
   # in spec/scenarios/users_scenario.rb or test/scenarios/users_scenario.rb
   class UsersScenario < Scenario::Base
@@ -144,9 +166,9 @@ examples:
   end
 
 Helper methods declared inside the helpers block are mixed into the scenario
-when it is instantiated and mixed into examples that declare that they are
-using the scenario. Also, in the case where one scenario <tt>uses</tt>
-another, the using scenario will have the helper methods of the used scenario.
+when it is instantiated and mixed into examples that declare that they are using
+the scenario. Also, in the case where one scenario <tt>uses</tt> another, the
+using scenario will have the helper methods of the used scenario.
 
   # in spec/controllers/projects_controller_spec.rb
   describe "Projects screen" do
@@ -171,9 +193,21 @@ another, the using scenario will have the helper methods of the used scenario.
   end
 
 Notice that within my specs/tests I have access to the login_as helper method
-declared inside the <tt>helpers</tt> block of the UsersScenario.
-Scenario helpers are a great way to share helper methods between specs/tests that
-use a specific scenario.
+declared inside the <tt>helpers</tt> block of the UsersScenario. Scenario
+helpers are a great way to share helper methods between specs/tests that use a
+specific scenario.
+
+=== Built-in Scenario
+
+There is a scenario named 'blank' that comes with the plugin. This scenario is
+useful when you want to express, and guarantee, that the database is empty. It
+works by using your db/schema.rb, so if the table isn't created in there, it
+won't be cleaned up.
+
+Scenario.load_paths is an array of the locations to look for scenario
+definitions. The built-in scenarios directory is consulted last, so if you'd
+like to re-define, for instance, the 'blank' scenario, simply create
+'blank_scenario.rb' in your spec/scenarios or test/scenarios directory.
 
 === Load Rake Task
 
@@ -186,13 +220,16 @@ which you may use in a fashion similar to Rails fixtures'
 When invoked, this task will populate the development database with the named
 scenario.
 
-If you do not specify SCENARIO, the task will expect to find a default
-scenario (a file 'default_scenario.rb' having DefaultScenario defined in it).
-It is our practice to have it such that this scenario <tt>uses</tt> a number
-of our other scenarios, thereby:
+If you do not specify SCENARIO, the task will expect to find a default scenario
+(a file 'default_scenario.rb' having DefaultScenario defined in it). It is our
+practice to have it such that this scenario <tt>uses</tt> a number of our other
+scenarios, thereby:
 
-* encouraging us to use test data that looks good in the running development application
-* allowing us to troubleshoot failing tests in the running development application
+* encouraging us to use test data that looks good in the running development
+  application
+
+* allowing us to troubleshoot failing tests in the running development
+  application
 
 === More Information
 
