@@ -21,6 +21,7 @@ describe "Scenario loading" do
   end
   
   it "should load the scenarios only once per test class/example group, then unload at the end, even on exception of any test" do
+    debugger
     tracking_scenario = Class.new((:things).to_scenario) do
       cattr_accessor :instance
       def initialize(*args)
