@@ -1,5 +1,23 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 
+class ExplodesOnSecondInstantiationScenario < Scenario::Base
+  cattr_accessor :instance
+  def initialize(*args)
+    raise "Should only be created once" if self.class.instance
+    self.class.instance = super(*args)
+  end
+end
+
+describe "Scenario loading" do
+  scenario :explodes_on_second_instantiation
+  
+  it "should work" do
+  end
+  
+  it 'should work again' do
+  end
+end
+
 describe "Scenario loading" do
   it "should load from configured directories" do
     Scenario.load(:empty)
@@ -18,29 +36,6 @@ describe "Scenario loading" do
       end
     end
     klass.new.methods.should include('hello')
-  end
-  
-  it "should load the scenarios only once per test class/example group, then unload at the end, even on exception of any test" do
-    debugger
-    tracking_scenario = Class.new((:things).to_scenario) do
-      cattr_accessor :instance
-      def initialize(*args)
-        raise "Should only be created once" if self.class.instance
-        self.class.instance = super(*args)
-      end
-    end
-    
-    test_case = Class.new(Test::Unit::TestCase) do
-      scenario tracking_scenario
-      def test_something; end
-      def test_bad_stuff
-        # raise "bad stuff"
-      end
-    end
-    
-    test_case.suite.run
-    
-    tracking_scenario.instance.should be_unloaded
   end
   
   it "should provide a built-in scenario named :blank which clears all tables found in schema.rb" do

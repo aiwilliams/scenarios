@@ -1,1 +1,4 @@
 environments
+*.log
+tmp
+vendor

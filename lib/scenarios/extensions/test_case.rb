@@ -36,6 +36,7 @@ module Test #:nodoc:
           class << suite
             attr_accessor :test_class
             def run_with_scenarios(*args, &block)
+              debugger
               run_without_scenarios(*args, &block)
               test_class.table_config.loaded_scenarios.each { |s| s.unload } if test_class.table_config
             end
