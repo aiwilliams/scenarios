@@ -38,10 +38,9 @@ describe "Scenario loading" do
     klass.new.methods.should include('hello')
   end
   
-  it "should provide a built-in scenario named :blank which clears all tables found in schema.rb" do
-    Scenario.load(:blank)
-    BlankScenario
-  end
+  # See loading.rb - There is some commented out code there that may help, or it
+  # needs to be deleted.
+  it 'should allow test subclasses, which load additional scenarios (concat)'
 end
 
 describe Scenarios::TableMethods do
@@ -177,9 +176,15 @@ describe "create_model table method" do
     thing = create_model Thing, :mything, :name => "My Thing", :description => "For testing"
     things(:mything).should == thing
   end
-  
-  it "should blast any table touched as a side effect of creating a model (callbacks, observers, etc.)" do
-    create_model SideEffectyThing
-    blasted_tables.should include(Thing.table_name)
+end
+
+describe 'Database tables' do
+  it 'should be cleared when scenario loaded' do
+    Thing.create!(:name => 'Existing Thing')
+    Scenario.load(:things)
+    Thing.find_by_name('Existing Thing').should be_nil
+    Thing.count.should > 0
+    Scenario.load(:places)
+    Thing.count.should == 0
   end
 end

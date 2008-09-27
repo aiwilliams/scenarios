@@ -4,7 +4,9 @@ module Scenarios
       # Class method to load the scenario. Used internally by the Scenarios
       # plugin.
       def load
-        new.load_scenarios(used_scenarios + [self])
+        scenario = new
+        scenario.table_config.clear_tables
+        scenario.load_scenarios(used_scenarios + [self])
       end
       
       # Class method for your own scenario to define helper methods that will
@@ -56,18 +58,8 @@ module Scenarios
     def load
     end
     
-    # Unload a scenario, sort of. This really only deletes the records, all of
-    # them, of every table this scenario modified. The goal is to maintain a
-    # clean database for successive runs. Used internally by the Scenarios
-    # plugin.
-    def unload
-      return if unloaded?
-      record_metas.each_value { |meta| blast_table(meta.table_name) }
-      @unloaded = true
-    end
-    
-    def unloaded?
-      @unloaded == true
+    def table_names
+      self.class.table_names
     end
   end
 end

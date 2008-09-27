@@ -28,7 +28,7 @@ module Test #:nodoc:
           end
           scenario_classes.uniq!
         end
-      
+        
         # Overridden to provide before all and after all code which sets up and
         # tears down scenarios
         def suite_with_scenarios
@@ -36,7 +36,6 @@ module Test #:nodoc:
           class << suite
             attr_accessor :test_class
             def run_with_scenarios(*args, &block)
-              debugger
               run_without_scenarios(*args, &block)
               test_class.table_config.loaded_scenarios.each { |s| s.unload } if test_class.table_config
             end
@@ -53,25 +52,15 @@ module Test #:nodoc:
       # use_transactional_fixtures. I feel like a leech.
       def load_fixtures
         if !scenarios_loaded? || !use_transactional_fixtures?
-          self.class.table_config = Scenarios::Configuration.new if !use_transactional_fixtures? || table_config.nil?
+          if !use_transactional_fixtures? || table_config.nil?
+            self.class.table_config = Scenarios::Configuration.new
+            self.class.table_config.clear_tables
+          end
           load_scenarios(scenario_classes)
         end
         self.extend scenario_helpers
         self.extend table_readers
       end
-      
-      # Here we are counting on existing logic to allow teardown method
-      # overriding as done in fixtures.rb. Only if transaction fixtures are
-      # not being used do we unload scenarios after a test. Otherwise, we wait
-      # until the end of the run of all tests on this test_case (collection of
-      # tests, right!). See the TestSuite extension done in _suite_ for
-      # behaviour when using transaction fixtures.
-      def teardown_with_scenarios
-        teardown_without_scenarios
-        loaded_scenarios.each { |s| s.unload } unless use_transactional_fixtures?
-      end
-      alias_method_chain :teardown, :scenarios
-      
     end
   end
 end

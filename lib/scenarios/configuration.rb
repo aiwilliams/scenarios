@@ -1,14 +1,21 @@
 module Scenarios
   class Configuration # :nodoc:
-    attr_reader :blasted_tables, :loaded_scenarios, :record_metas, :table_readers, :scenario_helpers, :symbolic_names_to_id
+    attr_reader :loaded_scenarios, :record_metas, :table_readers, :scenario_helpers, :symbolic_names_to_id
     
     def initialize
-      @blasted_tables       = Set.new
       @record_metas         = Hash.new
       @table_readers        = Module.new
       @scenario_helpers     = Module.new
       @symbolic_names_to_id = Hash.new {|h,k| h[k] = Hash.new}
       @loaded_scenarios     = Array.new
+    end
+    
+    def clear_tables
+      ActiveRecord::Base.silence do
+        ActiveRecord::Base.send(:subclasses).each do |ar|
+          ar.connection.delete "DELETE FROM #{ar.connection.quote_table_name(ar.table_name)}", "Scenario Delete" rescue nil
+        end
+      end
     end
     
     # Given a created record (currently ScenarioModel or ScenarioRecord),

@@ -3,7 +3,6 @@ module Scenarios
   # that must be made available through a method _table_config_.
   module Loading # :nodoc:
     def load_scenarios(scenario_classes)
-      install_active_record_tracking_hook
       scenario_classes.each do |scenario_class|
         scenario = scenario_class.new(table_config)
         scenario.load
@@ -42,10 +41,5 @@ module Scenarios
     #     return on_super_class if on_super_class
     #   end
     # end
-    
-    private
-      def install_active_record_tracking_hook
-        ActiveRecord::Base.table_config = table_config
-      end
   end
 end

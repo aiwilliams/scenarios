@@ -3,8 +3,6 @@ module Scenarios
   # available to all Scenario instances, test and example classes, and test
   # and example instances.
   module TableMethods
-    include TableBlasting
-    
     delegate :record_metas, :to => :table_config
     
     # Insert a record into the database, add the appropriate helper methods
@@ -71,7 +69,6 @@ module Scenarios
         record       = record_or_model.new(record_meta, attributes, symbolic_name)
         return_value = nil
         ActiveRecord::Base.silence do
-          prepare_table(record_meta.table_name)
           return_value = insertion.call record
           table_config.update_table_readers(record)
           self.extend table_config.table_readers
