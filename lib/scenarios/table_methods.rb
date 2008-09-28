@@ -3,7 +3,7 @@ module Scenarios
   # available to all Scenario instances, test and example classes, and test
   # and example instances.
   module TableMethods
-    delegate :record_metas, :to => :table_config
+    delegate :record_metas, :to => :data_session
     
     # Insert a record into the database, add the appropriate helper methods
     # into the scenario and spec, and return the ID of the inserted record:
@@ -70,8 +70,8 @@ module Scenarios
         return_value = nil
         ActiveRecord::Base.silence do
           return_value = insertion.call record
-          table_config.update_table_readers(record)
-          self.extend table_config.table_readers
+          data_session.update_table_readers(record)
+          self.extend data_session.table_readers
         end
         return_value
       end

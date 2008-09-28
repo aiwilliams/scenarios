@@ -5,7 +5,7 @@ module Scenarios
       # plugin.
       def load
         scenario = new
-        scenario.table_config.clear_tables
+        scenario.data_session.clear_tables
         scenario.load_scenarios(used_scenarios + [self])
       end
       
@@ -41,25 +41,21 @@ module Scenarios
     include TableMethods
     include Loading
     
-    attr_reader :table_config
+    attr_reader :data_session
     
-    # Initialize a scenario with a Configuration. Used internally by the
+    # Initialize a scenario with a DataSession. Used internally by the
     # Scenarios plugin.
-    def initialize(config = Configuration.new)
-      @table_config = config
-      table_config.update_scenario_helpers self.class
-      self.extend table_config.table_readers
-      self.extend table_config.scenario_helpers
+    def initialize(session = DataSession.new)
+      @data_session = session
+      data_session.update_scenario_helpers self.class
+      self.extend data_session.table_readers
+      self.extend data_session.scenario_helpers
     end
     
     # This method should be implemented in your scenarios. You may also have
     # scenarios that simply use other scenarios, so it is not required that
     # this be overridden.
     def load
-    end
-    
-    def table_names
-      self.class.table_names
     end
   end
 end

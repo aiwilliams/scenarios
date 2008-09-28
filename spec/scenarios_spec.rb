@@ -37,10 +37,6 @@ describe "Scenario loading" do
     end
     klass.new.methods.should include('hello')
   end
-  
-  # See loading.rb - There is some commented out code there that may help, or it
-  # needs to be deleted.
-  it 'should allow test subclasses, which load additional scenarios (concat)'
 end
 
 describe Scenarios::TableMethods do

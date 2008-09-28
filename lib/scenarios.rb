@@ -26,7 +26,7 @@ unless Class.instance_methods.include?(:superclass_delegating_reader)
 end
 
 require 'active_record/fixtures'
-require 'scenarios/configuration'
+require 'scenarios/data_session'
 require 'scenarios/table_methods'
 require 'scenarios/loading'
 require 'scenarios/base'

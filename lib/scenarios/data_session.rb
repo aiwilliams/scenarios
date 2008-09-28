@@ -1,5 +1,5 @@
 module Scenarios
-  class Configuration # :nodoc:
+  class DataSession # :nodoc:
     attr_reader :loaded_scenarios, :record_metas, :table_readers, :scenario_helpers, :symbolic_names_to_id
     
     def initialize
