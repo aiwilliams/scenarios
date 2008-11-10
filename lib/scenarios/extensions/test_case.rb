@@ -30,9 +30,6 @@ module Test #:nodoc:
         end
       end
       
-      # Hook into fixtures loading lifecycle to instead load scenarios. This
-      # is expected to be called in a fashion respective of
-      # use_transactional_fixtures. I feel like a leech.
       def load_fixtures
         if !scenarios_loaded? || !use_transactional_fixtures?
           if !use_transactional_fixtures? || data_session.nil?

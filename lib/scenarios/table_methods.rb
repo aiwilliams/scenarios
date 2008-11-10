@@ -1,7 +1,6 @@
 module Scenarios
-  # This helper module contains the #create_record method. It is made
-  # available to all Scenario instances, test and example classes, and test
-  # and example instances.
+  # This helper module provides the table writing methods that are available
+  # in a scenario's load method and in your tests.
   module TableMethods
     delegate :record_metas, :to => :data_session
     

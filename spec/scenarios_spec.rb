@@ -1,3 +1,4 @@
+ENV['PLUGIT_ENV'] = 'released'
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 
 class ExplodesOnSecondInstantiationScenario < Scenario::Base
@@ -8,7 +9,7 @@ class ExplodesOnSecondInstantiationScenario < Scenario::Base
   end
 end
 
-describe "Scenario loading" do
+describe "Scenario loading 1" do
   scenario :explodes_on_second_instantiation
   
   it "should work" do
@@ -16,9 +17,42 @@ describe "Scenario loading" do
   
   it 'should work again' do
   end
+  
+  describe "test subclasses" do
+    it 'should work again' do
+    end
+  end
 end
 
-describe "Scenario loading" do
+describe "Scenario loading 2" do
+  scenario :things
+  
+  describe "test subclasses 1" do
+    it 'should use the scenarios of superclass' do
+      Thing.count.should > 0
+    end
+    
+    it 'should only load once' do
+      
+    end
+  end
+  
+  describe "test subclasses 2" do
+    scenario :places
+    
+    it 'will delete data from superclass if they declare their own scenarios' do
+      Thing.count.should == 0
+    end
+  end
+  
+  describe "test subclasses 3" do
+    it 'should still have access to things' do
+      Thing.count.should > 0 
+    end
+  end
+end
+
+describe "Scenario loading 3" do
   it "should load from configured directories" do
     Scenario.load(:empty)
     EmptyScenario
