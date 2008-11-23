@@ -1,3 +1,7 @@
+= Deprecated -- Use Dataset
+
+Scenarios has been replaced by Dataset, a complete rewrite, test driven. It has a number of bugs fixed and more features. Check out http://github.com/aiwilliams/dataset. I hope you find it far more useful and worth helping to extend.
+
 == Rails Scenarios Plugin
 
 Who hasn't experienced the pain of dozens of YAML files filled with hundreds
